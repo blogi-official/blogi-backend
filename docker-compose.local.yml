@@ -1,0 +1,108 @@
+services:
+  django:
+    container_name: django
+    env_file:
+      - django_app/envs/.local.env
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.local
+    build:
+      context: ./django_app
+    working_dir: /blogi-backend/django_app
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             gunicorn --workers 3 --worker-class=uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000 config.asgi:application
+             "
+    ports:
+      - "8000:8000"
+    volumes:
+      - static_volume:/oz_externship/app/static
+      - media_volume:/oz_externship/app/media
+    networks:
+      - ws
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  fastapi:
+    container_name: fastapi
+    env_file:
+      - fastapi_app/envs/.local.env    # FastAPI 환경변수 파일 (있다면)
+    build:
+      context: ./fastapi_app # FastAPI Dockerfile 위치
+    working_dir: /blogi-backend/fastapi_app     # Dockerfile WORKDIR과 맞춰주세요
+    command: >
+      uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8001:8000"          # 외부 8001 포트를 컨테이너 8000 포트에 매핑
+    volumes:
+      - ./fastapi_app:/app   # 코드 변경 시 바로 반영되도록 볼륨 매핑
+    networks:
+      - ws
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - django
+      - fastapi
+    volumes:
+      - ./resources/nginx/nginx.local.conf:/etc/nginx/nginx.conf:ro
+      - static_volume:/oz_externship/app/static
+      - media_volume:/oz_externship/app/media
+    networks:
+      - ws
+
+  db:
+    image: postgres:14
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: pw1234
+      POSTGRES_ROOT_USER: postgres
+      POSTGRES_DB: blogi
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - ws
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - ws
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+networks:
+  ws:
+    driver: bridge
+
+volumes:
+  static_volume:
+  media_volume:
+  postgres_data:
