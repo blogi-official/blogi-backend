@@ -186,8 +186,8 @@ REST_FRAMEWORK = {
 
 # drf-spectacular 관련 설정
 SPECTACULAR_SETTINGS = {
-    "TITLE": "오즈 코딩 스쿨 Backend API",
-    "DESCRIPTION": "오즈 코딩 스쿨의 웹 사이트 개발을 위한 API입니다.",
+    "TITLE": "블로기 Backend API",
+    "DESCRIPTION": "블로기 웹 사이트 개발을 위한 API입니다.",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "COMPONENT_SPLIT_REQUEST": True,

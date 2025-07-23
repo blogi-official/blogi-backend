@@ -16,8 +16,8 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - static_volume:/oz_externship/app/static
-      - media_volume:/oz_externship/app/media
+      - static_volume:/blogi/app/static
+      - media_volume:/blogi/app/media
     networks:
       - ws
     depends_on:
@@ -58,8 +58,8 @@ services:
       - fastapi
     volumes:
       - ./resources/nginx/nginx.local.conf:/etc/nginx/nginx.conf:ro
-      - static_volume:/oz_externship/app/static
-      - media_volume:/oz_externship/app/media
+      - static_volume:/blogi/app/static
+      - media_volume:/blogi/app/media
     networks:
       - ws
 
