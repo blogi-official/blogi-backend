@@ -148,9 +148,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="generatedpost",
             name="keyword",
-            field=models.OneToOneField(
-                on_delete=django.db.models.deletion.CASCADE, to="apps.keyword"
-            ),
+            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to="apps.keyword"),
         ),
         migrations.CreateModel(
             name="ClovaStudioLog",
@@ -166,18 +164,14 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "status",
-                    models.CharField(
-                        choices=[("success", "성공"), ("fail", "실패")], max_length=20
-                    ),
+                    models.CharField(choices=[("success", "성공"), ("fail", "실패")], max_length=20),
                 ),
                 ("error_message", models.TextField(blank=True, null=True)),
                 ("response_time_ms", models.IntegerField(blank=True, null=True)),
                 ("requested_at", models.DateTimeField(auto_now_add=True)),
                 (
                     "keyword",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="apps.keyword"
-                    ),
+                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="apps.keyword"),
                 ),
             ],
             options={
@@ -201,9 +195,7 @@ class Migration(migrations.Migration):
                 ("origin_link", models.CharField(max_length=1000)),
                 (
                     "keyword",
-                    models.OneToOneField(
-                        on_delete=django.db.models.deletion.CASCADE, to="apps.keyword"
-                    ),
+                    models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to="apps.keyword"),
                 ),
             ],
             options={
@@ -225,15 +217,11 @@ class Migration(migrations.Migration):
                 ("clicked_at", models.DateTimeField(auto_now_add=True)),
                 (
                     "keyword",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="apps.keyword"
-                    ),
+                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="apps.keyword"),
                 ),
                 (
                     "user",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="apps.user"
-                    ),
+                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="apps.user"),
                 ),
             ],
             options={
@@ -243,9 +231,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="generatedpost",
             name="user",
-            field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE, to="apps.user"
-            ),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="apps.user"),
         ),
         migrations.CreateModel(
             name="CopyLog",
@@ -269,9 +255,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "user",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="apps.user"
-                    ),
+                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="apps.user"),
                 ),
             ],
             options={
@@ -297,9 +281,7 @@ class Migration(migrations.Migration):
                 ("logged_at", models.DateTimeField(auto_now_add=True)),
                 (
                     "admin",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="apps.user"
-                    ),
+                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="apps.user"),
                 ),
             ],
             options={
@@ -335,9 +317,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "user",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="apps.user"
-                    ),
+                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="apps.user"),
                 ),
             ],
             options={

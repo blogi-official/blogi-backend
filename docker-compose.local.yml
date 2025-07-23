@@ -29,16 +29,16 @@ services:
   fastapi:
     container_name: fastapi
     env_file:
-      - fastapi_app/envs/.local.env    # FastAPI 환경변수 파일 (있다면)
+      - fastapi_app/envs/.local.env
     build:
-      context: ./fastapi_app # FastAPI Dockerfile 위치
-    working_dir: /blogi-backend/fastapi_app     # Dockerfile WORKDIR과 맞춰주세요
+      context: ./fastapi_app
+    working_dir: /blogi-backend/fastapi_app
     command: >
       uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     ports:
-      - "8001:8000"          # 외부 8001 포트를 컨테이너 8000 포트에 매핑
+      - "8001:8000"
     volumes:
-      - ./fastapi_app:/app   # 코드 변경 시 바로 반영되도록 볼륨 매핑
+      - ./fastapi_app:/app
     networks:
       - ws
     depends_on:
