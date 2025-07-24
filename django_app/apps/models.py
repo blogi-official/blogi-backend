@@ -1,7 +1,12 @@
+import random
+
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
-class User(models.Model):
+class User(AbstractUser):
+    username = None  # type: ignore
+
     class Provider(models.TextChoices):
         GOOGLE = "google"
         NAVER = "naver"
@@ -11,7 +16,8 @@ class User(models.Model):
         USER = "user"
         ADMIN = "admin"
 
-    email = models.CharField(max_length=255, unique=True)
+    username = models.CharField(max_length=150, unique=True, null=True, blank=True)  # type: ignore
+    email = models.EmailField(unique=True)
     social_id = models.CharField(max_length=255)
     nickname = models.CharField(max_length=100)
     profile_image = models.CharField(max_length=500, null=True, blank=True)
@@ -20,11 +26,22 @@ class User(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    USERNAME_FIELD = "email"  # 이메일로 로그인하려면 필수
+    REQUIRED_FIELDS = ["username"]  # createsuperuser 시 최소 필드
+
     class Meta:
         db_table = "user"
 
     def __str__(self) -> str:
         return self.email
+
+    # username이 없을 때 자동 생성
+    def save(self, *args, **kwargs):
+        if not self.username:
+            base = self.email.split("@")[0]
+
+            self.username = f"{base}_{random.randint(1000, 9999)}"
+        super().save(*args, **kwargs)
 
 
 class UserInterest(models.Model):

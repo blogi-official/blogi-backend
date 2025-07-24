@@ -1,15 +1,15 @@
 from django.conf import settings
+from django.contrib import admin
 from django.urls import URLPattern, URLResolver, include, path
 from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
-from django.contrib import admin
 
 urlpatterns: list[URLPattern | URLResolver] = [
     path("admin/", admin.site.urls),
-    path("api/v1/users/", include("apps.users.urls")),
+    path("api/", include("apps.users.urls", namespace="users")),
 ]
 
 if settings.DEBUG:

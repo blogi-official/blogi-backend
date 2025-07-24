@@ -1,6 +1,5 @@
-from fastapi import APIRouter
-
 from app.features.test_users.services import fetch_user_from_django
+from fastapi import APIRouter
 
 user_router = APIRouter()
 

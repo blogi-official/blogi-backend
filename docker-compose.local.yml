@@ -4,7 +4,7 @@ services:
     env_file:
       - django_app/envs/.local.env
     environment:
-      - DJANGO_SETTINGS_MODULE=config.settings.local
+      - DJANGO_SETTINGS_MODULE=config.settings.local #TODO 추후 prod.py로 변경 필요
     build:
       context: ./django_app
     working_dir: /blogi-backend/django_app

@@ -1,6 +1,6 @@
 import httpx
-
 from app.core.config import settings
+
 
 async def fetch_user_from_django(user_id: int):
     async with httpx.AsyncClient(follow_redirects=True) as client:

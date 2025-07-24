@@ -1,1 +1,71 @@
-# views.py
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_schema
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.request import Request
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from apps.models import Keyword, User
+from apps.users.serializers.keyword_serializers import KeywordListSerializer
+from apps.utils.paginations import CustomPageNumberPagination
+from apps.utils.permissions import IsUser
+
+
+@extend_schema(
+    tags=["[User] Keyword - 콘텐츠"],
+    summary="관심사 기반 키워드 조회",
+    description=(
+        "로그인한 사용자의 관심사를 기준으로 키워드를 우선 정렬하여 반환합니다.\n\n"
+        "- 기본 정렬: 관심사 우선 + 최신순 (sort=latest)\n"
+        "- 인기순 정렬: 향후 확장 가능 (sort=popular)\n"
+        "- 페이지네이션 적용 (page, page_size)"
+    ),
+    parameters=[
+        OpenApiParameter(
+            name="sort",
+            type=str,
+            location=OpenApiParameter.QUERY,
+            enum=["latest", "popular"],
+            description=(
+                "정렬 기준:\n" "- latest: 최신순 + 관심사 우선 (기본값)\n" "- popular: 클릭 수 기반 인기순 (추후 지원)"
+            ),
+        ),
+        OpenApiParameter(
+            name="page",
+            type=int,
+            location=OpenApiParameter.QUERY,
+            description="페이지 번호 (기본 1)",
+        ),
+        OpenApiParameter(
+            name="page_size",
+            type=int,
+            location=OpenApiParameter.QUERY,
+            description="페이지당 항목 수 (기본 20, 최대 100)",
+        ),
+    ],
+    responses={
+        200: OpenApiResponse(description="조회 성공"),
+        401: OpenApiResponse(description="인증 필요"),
+    },
+)
+class KeywordListAPIView(APIView):
+    permission_classes = [IsUser]
+    serializer_class = KeywordListSerializer
+
+    def get(self, request: Request) -> Response:
+        user = request.user
+        assert isinstance(user, User)
+        user_categories = user.userinterest_set.values_list("category", flat=True)
+
+        qs = Keyword.objects.filter(is_active=True)
+
+        # 관심사 우선 정렬
+        keyword_queryset = list(qs.filter(category__in=user_categories).order_by("-collected_at")) + list(
+            qs.exclude(category__in=user_categories).order_by("-collected_at")
+        )
+
+        paginator = CustomPageNumberPagination()
+        paginated_qs = paginator.paginate_queryset(keyword_queryset, request)  # type: ignore[arg-type]
+        serializer = KeywordListSerializer(paginated_qs, many=True)
+
+        return paginator.get_paginated_response(serializer.data)
