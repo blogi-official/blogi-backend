@@ -5,8 +5,10 @@ from drf_spectacular.views import (
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
+from django.contrib import admin
 
 urlpatterns: list[URLPattern | URLResolver] = [
+    path("admin/", admin.site.urls),
     path("api/v1/users/", include("apps.users.urls")),
 ]
 
