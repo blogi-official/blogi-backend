@@ -6,17 +6,12 @@ from playwright.async_api import async_playwright
 from app.features.internal.scrape_titles.config import CATEGORY_MAP
 
 
-# 유니코드 제어 문자, PUA 문자 제거
 def clean_text(text: str) -> str:
-    # 유니코드 제어 문자, PUA 문자 제거
     return re.sub(
         r"[\u200b-\u200f\u202a-\u202e\u2060-\u206f\ue000-\uf8ff]", "", text
     ).strip()
 
 
-# Playwright로 크롤링 수행
-# Playwright로 각 카테고리 URL의 인기 제목 수집
-# Headless 모드에서 동작하며 title 리스트 반환
 async def scrape_titles() -> list[dict]:
     result = []
 

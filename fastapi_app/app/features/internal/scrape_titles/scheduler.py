@@ -1,4 +1,3 @@
-# 백그라운드 작업 등록: 수집 작업을 주기적으로 실행하고 싶을 때 사용
 from fastapi import FastAPI
 from fastapi_utils.tasks import repeat_every
 

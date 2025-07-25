@@ -1,6 +1,3 @@
-# Django 전송 로직
-# 크롤링된 데이터를 Django 내부 API로 POST 전송
-
 import httpx
 
 from app.features.internal.scrape_titles.config import DJANGO_API_ENDPOINT

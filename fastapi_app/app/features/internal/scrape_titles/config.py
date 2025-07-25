@@ -1,4 +1,3 @@
-# CATEGORY_MAP, API 주소
 from app.core.config import settings
 
 CATEGORY_MAP = {
@@ -11,6 +10,4 @@ CATEGORY_MAP = {
     "맛집": "맛집/카페",
 }
 
-# djangp는 post로 db에 저장
-# DJANGO_API_ENDPOINT = "http://your-django-host/api/internal/posts/"
 DJANGO_API_ENDPOINT = f"http://{settings.django_api_url}/api/internal/posts/"
