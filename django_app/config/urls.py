@@ -8,8 +8,9 @@ from drf_spectacular.views import (
 )
 
 urlpatterns: list[URLPattern | URLResolver] = [
-    path("admin/", admin.site.urls),
+    path("admins/", admin.site.urls),
     path("api/", include("apps.users.urls", namespace="users")),
+    path("admin/", include("apps.custom_admin.urls", namespace="custom_admin")),
 ]
 
 if settings.DEBUG:

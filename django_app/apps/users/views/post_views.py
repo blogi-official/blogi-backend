@@ -1,5 +1,6 @@
 import tempfile
 
+from django.db.models import F
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import OpenApiResponse, extend_schema
@@ -107,19 +108,16 @@ class PostCopyAPIView(APIView):
 
     def post(self, request, id):
         user = request.user
-
         post = get_object_or_404(GeneratedPost, id=id)
 
-        # 로그 생성
+        # 1회만 복사 로그 생성
         copy_log = CopyLog.objects.create(user=user, post=post)
 
-        # 복사 수 증가
-        post.copy_count += 1
-        post.save(update_fields=["copy_count"])
+        # copy_count 1 증가 (DB 레벨)
+        GeneratedPost.objects.filter(id=post.id).update(copy_count=F("copy_count") + 1)
 
         serializer = self.serializer_class(copy_log)
-
-        return Response({"message": "복사 기록이 저장되었습니다."}, status=status.HTTP_200_OK)
+        return Response({"message": "복사 기록이 저장되었습니다."}, status=200)
 
 
 @extend_schema(

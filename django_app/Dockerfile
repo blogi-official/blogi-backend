@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     libcairo2 \
     libpango-1.0-0 \
+    libpangoft2-1.0-0 \
     libgdk-pixbuf2.0-0 \
     fonts-nanum \
     && apt-get clean \

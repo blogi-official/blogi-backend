@@ -5,10 +5,10 @@ from django.utils import timezone
 from apps.models import GeneratedPost, Keyword, User
 
 # 014 용 더비 DB
-user = User.objects.get(id=6)
+user = User.objects.get(id=9)
 
 for i in range(5):
-    title = f"테스트 키워드 {i+6}"
+    title = f"테스트 키워드 {i+11}"
 
     keyword, created = Keyword.objects.get_or_create(
         title=title,
