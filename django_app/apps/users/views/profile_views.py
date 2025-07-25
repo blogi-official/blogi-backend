@@ -8,6 +8,7 @@ from rest_framework.views import APIView
 from apps.users.serializers.profile_serializers import (
     UserInterestSerializer,
     UserProfileSerializer,
+    UserUpdateSerializer,
 )
 from apps.utils.permissions import IsUser
 
@@ -72,3 +73,62 @@ class UserProfileAPIView(APIView):
     def get(self, request):
         serializer = UserProfileSerializer(request.user)
         return Response({"message": "사용자 정보 조회 성공", "data": serializer.data}, status=200)
+
+
+@extend_schema(
+    tags=["[User] MyPage - 생성 이력"],
+    summary="(User)닉네임 및 관심사 수정",
+    description=(
+        "사용자가 마이페이지에서 자신의 닉네임과 관심사(category) 정보를 수정합니다.\n\n"
+        "- 닉네임은 최대 20자, 중복 불가\n"
+        "- 관심사는 최소 1개 이상 필수, enum 값 중 선택\n"
+        "- 기존 관심사는 모두 삭제 후 재등록됩니다"
+    ),
+    request=UserUpdateSerializer,
+    responses={
+        200: OpenApiResponse(description="수정 성공"),
+        401: OpenApiResponse(description="인증 정보가 유효하지 않습니다."),
+        403: OpenApiResponse(description="관심사는 최소 1개 이상 선택해야 합니다."),
+        409: OpenApiResponse(description="해당 닉네임은 이미 사용 중입니다."),
+    },
+)
+# 닉네임 및 관심사 수정(016)
+class UserUpdateView(APIView):
+    permission_classes = [IsUser]
+    serializer_class = UserUpdateSerializer
+
+    def patch(self, request):
+        serializer = self.serializer_class(instance=request.user, data=request.data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        return Response(serializer.to_representation(user), status=status.HTTP_200_OK)
+
+
+@extend_schema(
+    tags=["[User] MyPage - 생성 이력"],
+    summary="(User)회원 탈퇴",
+    description=(
+        "사용자가 자신의 계정을 영구적으로 탈퇴(삭제)합니다.\n\n"
+        "- 연관된 관심사, 생성글, 복사기록 등도 함께 삭제됩니다 (CASCADE)\n"
+        "- JWT 인증 필요\n"
+        "- 삭제 후 복구는 불가능합니다"
+    ),
+    responses={
+        204: None,
+        401: {"description": "JWT 인증 실패"},
+        500: {"description": "회원 탈퇴 처리 중 오류 발생"},
+    },
+)
+# 회원탈퇴
+class UserDeleteView(APIView):
+    permission_classes = [IsUser]
+
+    def delete(self, request):
+        try:
+            request.user.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Exception:
+            return Response(
+                {"detail": "회원 탈퇴 처리 중 오류가 발생했습니다."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )

@@ -51,3 +51,52 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ("email", "nickname", "provider", "created_at")
+
+
+# 닉네임 및 관심사 수정
+from rest_framework import serializers
+
+from apps.models import User, UserInterest
+
+
+class UserUpdateSerializer(serializers.Serializer):
+    nickname = serializers.CharField(max_length=20)
+    categories = serializers.ListField(
+        child=serializers.ChoiceField(choices=UserInterest.InterestCategory.choices),
+        allow_empty=False,
+        error_messages={"empty": "관심사는 최소 1개 이상 선택해야 합니다."},
+    )
+
+    def validate_nickname(self, value):
+        user = self.context["request"].user
+        if User.objects.exclude(id=user.id).filter(nickname=value).exists():
+            raise serializers.ValidationError("해당 닉네임은 이미 사용 중입니다.")
+        return value
+
+    def update(self, instance, validated_data):
+        nickname = validated_data.get("nickname")
+        categories = validated_data.get("categories")
+
+        # 닉네임 수정
+        instance.nickname = nickname
+        instance.save()
+
+        # 기존 관심사 삭제
+        UserInterest.objects.filter(user=instance).delete()
+
+        # 새 관심사 등록
+        interests = [UserInterest(user=instance, category=category) for category in categories]
+        UserInterest.objects.bulk_create(interests)
+
+        return instance
+
+    def to_representation(self, instance):
+        categories = UserInterest.objects.filter(user=instance).values_list("category", flat=True)
+        return {
+            "message": "사용자 정보 수정 완료",
+            "user_info": {
+                "id": instance.id,
+                "nickname": instance.nickname,
+                "categories": list(categories),
+            },
+        }
