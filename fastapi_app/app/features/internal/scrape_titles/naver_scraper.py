@@ -1,8 +1,7 @@
 import re
+from datetime import datetime
 
 from playwright.async_api import async_playwright
-
-from datetime import datetime
 
 from app.features.internal.scrape_titles.config import CATEGORY_MAP
 
@@ -10,7 +9,9 @@ from app.features.internal.scrape_titles.config import CATEGORY_MAP
 # 유니코드 제어 문자, PUA 문자 제거
 def clean_text(text: str) -> str:
     # 유니코드 제어 문자, PUA 문자 제거
-    return re.sub(r'[\u200b-\u200f\u202a-\u202e\u2060-\u206f\ue000-\uf8ff]', '', text).strip()
+    return re.sub(
+        r"[\u200b-\u200f\u202a-\u202e\u2060-\u206f\ue000-\uf8ff]", "", text
+    ).strip()
 
 
 # Playwright로 크롤링 수행
@@ -29,8 +30,8 @@ async def scrape_titles() -> list[dict]:
         print("[DEBUG] 페이지 객체 생성됨")
 
         for category, display_name in CATEGORY_MAP.items():
-            #category_encoded = quote_plus(display_name)
-            #query_encoded = quote_plus(query)
+            # category_encoded = quote_plus(display_name)
+            # query_encoded = quote_plus(query)
 
             category_encoded = display_name
             query = f"{display_name} 숏텐츠"
@@ -53,18 +54,20 @@ async def scrape_titles() -> list[dict]:
                 # TODO: 맛집분야 했지만 기사로 바꾸기. 전체를 확인하는 코드로 수정 혹은 카테고리별로 map로 하기
                 titles = await page.eval_on_selector_all(
                     "span.sds-comps-text-type-headline2",
-                    "elements => elements.map(el => el.innerText)"
+                    "elements => elements.map(el => el.innerText)",
                 )
 
                 print(f"[DEBUG] {category} 제목 수집 완료, 개수: {len(titles)}")
 
                 for t in titles:
-                    result.append({
-                        "title": clean_text(t),
-                        "category": category,
-                        "source": "네이버",
-                        "collected_at": datetime.utcnow().isoformat()
-                    })
+                    result.append(
+                        {
+                            "title": clean_text(t),
+                            "category": category,
+                            "source": "네이버",
+                            "collected_at": datetime.utcnow().isoformat(),
+                        }
+                    )
                 print(f"[스크래핑 결과] {category} 카테고리 → {len(titles)}개 수집됨")
 
             except Exception as e:
@@ -78,4 +81,3 @@ async def scrape_titles() -> list[dict]:
         print(f"[수집된 제목] {item['category']} - {item['title']}")
 
     return result
-

@@ -1,7 +1,7 @@
-from app.features.test_users.router import user_router
+from fastapi import APIRouter
 
 from app.features.internal.router import internal_router
-from fastapi import APIRouter
+from app.features.test_users.router import user_router
 
 api_router = APIRouter(prefix="/api/v1")
 

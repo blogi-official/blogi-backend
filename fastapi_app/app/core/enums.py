@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class Category(str, Enum):
     연예 = "연예"
     경제 = "경제"
