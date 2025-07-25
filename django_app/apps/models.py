@@ -31,6 +31,8 @@ class User(AbstractUser):
 
     class Meta:
         db_table = "user"
+        verbose_name = "사용자"
+        verbose_name_plural = "사용자 목록"
 
     def __str__(self) -> str:
         return self.email
@@ -60,6 +62,8 @@ class UserInterest(models.Model):
     class Meta:
         db_table = "user_interest"
         unique_together = ("user", "category")
+        verbose_name = "사용자 관심사"
+        verbose_name_plural = "사용자 관심사 목록"
 
     def __str__(self) -> str:
         return f"{self.user.nickname} - {self.category}"
@@ -76,6 +80,8 @@ class Keyword(models.Model):
 
     class Meta:
         db_table = "keyword"
+        verbose_name = "키워드"
+        verbose_name_plural = "키워드 목록"
 
     def __str__(self) -> str:
         return self.title
@@ -89,6 +95,8 @@ class Article(models.Model):
 
     class Meta:
         db_table = "article"
+        verbose_name = "기사"
+        verbose_name_plural = "기사 목록"
 
     def __str__(self) -> str:
         return self.title
@@ -108,6 +116,8 @@ class GeneratedPost(models.Model):
 
     class Meta:
         db_table = "generated_post"
+        verbose_name = "생성된 글"
+        verbose_name_plural = "생성된 글 목록"
 
     def __str__(self) -> str:
         return self.title
@@ -120,6 +130,8 @@ class CopyLog(models.Model):
 
     class Meta:
         db_table = "copy_log"
+        verbose_name = "복사 기록"
+        verbose_name_plural = "복사 기록 목록"
 
     def __str__(self) -> str:
         return f"{self.user.nickname} - post#{self.post.id}"
@@ -135,6 +147,8 @@ class AdminLog(models.Model):
 
     class Meta:
         db_table = "admin_log"
+        verbose_name = "관리자 로그"
+        verbose_name_plural = "관리자 로그 목록"
 
     def __str__(self) -> str:
         return f"{self.admin.nickname} - {self.action}"
@@ -149,6 +163,8 @@ class Image(models.Model):
 
     class Meta:
         db_table = "image"
+        verbose_name = "이미지"
+        verbose_name_plural = "이미지 목록"
 
     def __str__(self) -> str:
         return f"Post#{self.post.id} - Image {self.order}"
@@ -161,6 +177,8 @@ class KeywordClickLog(models.Model):
 
     class Meta:
         db_table = "keyword_click_log"
+        verbose_name = "키워드 클릭 기록"
+        verbose_name_plural = "키워드 클릭 기록 목록"
 
     def __str__(self) -> str:
         return f"{self.user.nickname} - {self.keyword.title}"
@@ -179,6 +197,8 @@ class ClovaStudioLog(models.Model):
 
     class Meta:
         db_table = "clova_studio_log"
+        verbose_name = "Clova 처리 기록"
+        verbose_name_plural = "Clova 처리 기록 목록"
 
     def __str__(self) -> str:
         return f"{self.keyword.title} - {self.status}"

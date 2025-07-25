@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_schema
 from rest_framework.permissions import IsAuthenticated
@@ -5,7 +6,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.models import Keyword, User
+from apps.models import Keyword, KeywordClickLog, User
 from apps.users.serializers.keyword_serializers import KeywordListSerializer
 from apps.utils.paginations import CustomPageNumberPagination
 from apps.utils.permissions import IsUser
@@ -69,3 +70,28 @@ class KeywordListAPIView(APIView):
         serializer = KeywordListSerializer(paginated_qs, many=True)
 
         return paginator.get_paginated_response(serializer.data)
+
+
+@extend_schema(
+    tags=["[User] Keyword - 콘텐츠"],
+    summary="키워드 클릭 기록 등록",
+    description="사용자가 키워드를 클릭할 때 클릭 이벤트를 기록합니다.",
+    responses={
+        201: {"type": "object", "example": {"message": "클릭 로그가 기록되었습니다."}},
+        401: {"type": "object", "example": {"detail": "자격 인증 정보가 포함되어 있지 않습니다."}},
+        404: {"type": "object", "example": {"detail": "해당 키워드를 찾을 수 없습니다."}},
+    },
+)
+# 키워드 클릭 기록
+class KeywordClickLogView(APIView):
+    permission_classes = [IsUser]
+
+    def post(self, request, id: int):
+        user = request.user
+
+        keyword = get_object_or_404(Keyword, pk=id)
+
+        KeywordClickLog.objects.create(user=user, keyword=keyword)
+        from rest_framework import status
+
+        return Response({"message": "클릭 로그가 기록되었습니다."}, status=status.HTTP_201_CREATED)

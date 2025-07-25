@@ -5,6 +5,7 @@ from django.conf import settings
 from django.shortcuts import redirect
 from django.utils.crypto import get_random_string
 from django.views import View
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -74,3 +75,40 @@ class NaverLoginStartView(View):
             f"&state={state}"
         )
         return redirect(naver_auth_url)
+
+
+# 임시 로그인 구현 view
+class KakaoLoginDocView(APIView):
+    @extend_schema(
+        tags=["[Auth] 소셜 로그인"],
+        summary="카카오 로그인 시작 (Swagger용)",
+        description="""
+📌 **카카오 로그인 안내**
+
+👉 [카카오 로그인 바로가기](http://127.0.0.1:8000/api/auth/kakao/login/)
+
+해당 링크를 클릭하면 카카오 로그인 페이지로 리디렉션됩니다.  
+이 API는 Swagger 문서에 노출시키기 위한 설명용입니다.
+        """,
+        responses={200: None},
+    )
+    def get(self, request):
+        return Response({"message": "카카오 로그인은 위 링크를 클릭하세요"})
+
+
+class NaverLoginDocView(APIView):
+    @extend_schema(
+        tags=["[Auth] 소셜 로그인"],
+        summary="네이버 로그인 시작 (Swagger용)",
+        description="""
+📌 **네이버 로그인 안내**
+
+👉 [네이버 로그인 바로가기](http://127.0.0.1:8000/api/auth/naver/login/)
+
+해당 링크를 클릭하면 네이버 로그인 페이지로 리디렉션됩니다.  
+이 API는 Swagger 문서에 노출시키기 위한 설명용입니다.
+        """,
+        responses={200: None},
+    )
+    def get(self, request):
+        return Response({"message": "네이버 로그인은 위 링크를 클릭하세요"})
