@@ -66,6 +66,8 @@ jobs:
         env:
           DJANGO_SETTINGS_MODULE: config.settings.local
           DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+          REDIS_HOST: ${{ secrets.REDIS_HOST }}
+          REDIS_PORT: ${{ secrets.REDIS_PORT }}
         run: poetry run mypy .
 
   test:
@@ -142,6 +144,8 @@ jobs:
         env:
           DJANGO_SETTINGS_MODULE: config.settings.local
           DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+          REDIS_HOST: ${{ secrets.REDIS_HOST }}
+          REDIS_PORT: ${{ secrets.REDIS_PORT }}
         run: poetry run python manage.py migrate
 
       - name: Check each app has test & Run coverage
@@ -149,6 +153,8 @@ jobs:
         env:
           DJANGO_SETTINGS_MODULE: config.settings.local
           DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+          REDIS_HOST: ${{ secrets.REDIS_HOST }}
+          REDIS_PORT: ${{ secrets.REDIS_PORT }}
         run: |
           ran_tests=false
           apps="community courses qna tests users"
