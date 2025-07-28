@@ -63,6 +63,9 @@ jobs:
 
       - name: Run Mypy
         working-directory: django_app
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings.local
+          DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
         run: poetry run mypy .
 
   test:
@@ -136,10 +139,16 @@ jobs:
 
       - name: Run Django Migration
         working-directory: django_app
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings.local
+          DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
         run: poetry run python manage.py migrate
 
       - name: Check each app has test & Run coverage
         working-directory: django_app
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings.local
+          DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
         run: |
           ran_tests=false
           apps="community courses qna tests users"
