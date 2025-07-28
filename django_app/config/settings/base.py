@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import os
+from datetime import timedelta
 from pathlib import Path
 from typing import Optional
 
@@ -238,3 +239,14 @@ NAVER_REDIRECT_URI = os.getenv("NAVER_REDIRECT_URI")
 
 # User model
 AUTH_USER_MODEL = "apps.User"
+
+# 일반 사용자 기본 수명: 30분, 관리자용은 뷰에서 덮어씀
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),  # 일반 사용자용
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ROTATE_REFRESH_TOKENS": False,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+}
