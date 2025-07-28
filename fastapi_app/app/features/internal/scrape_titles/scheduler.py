@@ -1,8 +1,7 @@
 from fastapi import FastAPI
 from fastapi_utils.tasks import repeat_every
 
-from app.features.internal.scrape_titles.services import \
-    fetch_and_send_to_django
+from app.features.internal.scrape_titles.services import fetch_and_send_to_django
 
 
 def register_periodic_tasks(app: FastAPI):

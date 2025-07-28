@@ -47,9 +47,7 @@ async def call_django_api(data_list: List[Dict[str, str]]):
     }
 
     async with httpx.AsyncClient() as client:
-        response = await client.post(
-            DJANGO_API_ENDPOINT, json=data_list, headers=headers
-        )
+        response = await client.post(DJANGO_API_ENDPOINT, json=data_list, headers=headers)
         logger.info(f"Django response status: {response.status_code}")
         logger.info(f"원본 응답 본문: {response.text}")
 
@@ -60,9 +58,7 @@ async def call_django_api(data_list: List[Dict[str, str]]):
             raise RuntimeError("Django API 응답 오류")
 
         if response.status_code not in (200, 201):
-            logger.error(
-                f"Django API 응답 오류: status={response.status_code}, message={data.get('message')}"
-            )
+            logger.error(f"Django API 응답 오류: status={response.status_code}, message={data.get('message')}")
             raise RuntimeError("Django API 응답 오류")
 
         return data
@@ -87,10 +83,7 @@ async def fetch_and_send_to_django():
         keywords = [
             k
             for k in keywords
-            if all(
-                isinstance(k.get(f), str) and k.get(f).strip()
-                for f in ["title", "category", "source_category"]
-            )
+            if all(isinstance(k.get(f), str) and k.get(f).strip() for f in ["title", "category", "source_category"])
         ]
 
         if not keywords:

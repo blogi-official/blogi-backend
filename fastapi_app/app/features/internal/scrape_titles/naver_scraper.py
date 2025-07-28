@@ -11,9 +11,7 @@ logger = get_logger(__name__)
 
 
 def clean_text(text: str) -> str:
-    return re.sub(
-        r"[\u200b-\u200f\u202a-\u202e\u2060-\u206f\ue000-\uf8ff]", "", text
-    ).strip()
+    return re.sub(r"[\u200b-\u200f\u202a-\u202e\u2060-\u206f\ue000-\uf8ff]", "", text).strip()
 
 
 # 각 카테고리에 대해 네이버 검색에서 제목(키워드) 리스트 수집
@@ -48,9 +46,7 @@ async def scrape_titles() -> list[dict]:
                             "title": clean_text(t),
                             "category": category,
                             "source_category": display_name,
-                            "collected_at": datetime.utcnow()
-                            .replace(tzinfo=timezone.utc)
-                            .isoformat(),
+                            "collected_at": datetime.utcnow().replace(tzinfo=timezone.utc).isoformat(),
                         }
                     )
 

@@ -33,6 +33,12 @@ isort = "^6.0.1"
 mypy = "^1.17.0"
 types-python-dateutil = "^2.9.0.20250708"
 
+[tool.black]
+line-length = 120
+
+[tool.isort]
+profile = "black"
+
 [tool.mypy]
 python_version = 3.12
 ignore_missing_imports = true
