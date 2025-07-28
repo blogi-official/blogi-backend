@@ -48,6 +48,11 @@ jobs:
         if: steps.cache-venv.outputs.cache-hit != 'true'
         run: poetry install --no-root
 
+      - name: Set multiline environment variable
+        run: |
+          mkdir -p django_app/envs
+          echo "${{ secrets.DJANGO_ENVS }}" > django_app/envs/.local.env
+
       - name: Run isort (Import sorting)
         working-directory: django_app
         run: poetry run isort . --check --diff
@@ -56,19 +61,8 @@ jobs:
         working-directory: django_app
         run: poetry run black . --check
 
-      - name: Set multiline environment variable
-        run: |
-          mkdir -p django_app/envs
-          echo "${{ secrets.DJANGO_ENVS }}" >> django_app/envs/.local.env
-
       - name: Run Mypy
         working-directory: django_app
-        env:
-          DJANGO_SETTINGS_MODULE: config.settings.local
-          DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
-          REDIS_HOST: ${{ secrets.REDIS_HOST }}
-          REDIS_PORT: ${{ secrets.REDIS_PORT }}
-          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
         run: poetry run mypy .
 
   test:
@@ -138,26 +132,14 @@ jobs:
       - name: Set multiline environment variable
         run: |
           mkdir -p django_app/envs
-          echo "${{ secrets.DJANGO_ENVS }}" >> django_app/envs/.local.env
+          echo "${{ secrets.DJANGO_ENVS }}" > django_app/envs/.local.env
 
       - name: Run Django Migration
         working-directory: django_app
-        env:
-          DJANGO_SETTINGS_MODULE: config.settings.local
-          DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
-          REDIS_HOST: ${{ secrets.REDIS_HOST }}
-          REDIS_PORT: ${{ secrets.REDIS_PORT }}
-          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
         run: poetry run python manage.py migrate
 
       - name: Check each app has test & Run coverage
         working-directory: django_app
-        env:
-          DJANGO_SETTINGS_MODULE: config.settings.local
-          DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
-          REDIS_HOST: ${{ secrets.REDIS_HOST }}
-          REDIS_PORT: ${{ secrets.REDIS_PORT }}
-          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
         run: |
           ran_tests=false
           apps="community courses qna tests users"
@@ -183,4 +165,3 @@ jobs:
           else
             echo "🚫 No tests were run. Skipping coverage report."
           fi
-
