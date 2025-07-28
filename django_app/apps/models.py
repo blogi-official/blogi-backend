@@ -70,7 +70,7 @@ class UserInterest(models.Model):
 
 
 class Keyword(models.Model):
-    title = models.CharField(max_length=255, unique=True)
+    title = models.CharField(max_length=255)
     category = models.CharField(max_length=20)
     source_category = models.CharField(max_length=50)
     is_active = models.BooleanField(default=True)
@@ -82,6 +82,7 @@ class Keyword(models.Model):
         db_table = "keyword"
         verbose_name = "키워드"
         verbose_name_plural = "키워드 목록"
+        unique_together = ("title", "category")
 
     def __str__(self) -> str:
         return self.title
