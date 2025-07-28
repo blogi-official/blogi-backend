@@ -1,12 +1,13 @@
 from fastapi import FastAPI
 
 from app.api.v1.routers import api_router
-
-# print("[DEBUG] api_router 포함 라우터 확인:", api_router.routes)
-
+from app.features.internal.scrape_titles.scheduler import \
+    register_periodic_tasks
 
 app = FastAPI()
 app.include_router(api_router)
+
+register_periodic_tasks(app)
 
 
 @app.get("/")

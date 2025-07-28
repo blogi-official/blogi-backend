@@ -21,6 +21,9 @@ COPY pyproject.toml poetry.lock ./
 # Install dependencies
 RUN poetry install --no-interaction --no-root
 
+# Install Playwright
+RUN poetry run playwright install --with-deps
+
 # Copy project files
 COPY . .
 
