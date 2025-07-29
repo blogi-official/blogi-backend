@@ -2,6 +2,7 @@ import json
 import re
 from datetime import datetime
 from typing import Dict, List
+from zoneinfo import ZoneInfo
 
 import httpx
 from dateutil.parser import isoparse
@@ -22,9 +23,10 @@ def clean_raw_data(item: dict) -> dict:
     if "collected_at" in item:
         try:
             dt = isoparse(item["collected_at"])
-            item["collected_at"] = dt.isoformat()
+
+            item["collected_at"] = dt.astimezone(ZoneInfo("Asia/Seoul")).isoformat()
         except Exception:
-            item["collected_at"] = datetime.now().isoformat()
+            item["collected_at"] = datetime.now(tz=ZoneInfo("Asia/Seoul")).isoformat()
 
     return item
 
@@ -33,10 +35,10 @@ def clean_raw_data(item: dict) -> dict:
 def parse_collected_at(raw_date_str: str) -> str:
     try:
         dt = isoparse(raw_date_str)
-        return dt.isoformat()
+        return dt.astimezone(ZoneInfo("Asia/Seoul")).isoformat()
     except Exception as e:
         logger.warning(f"날짜 변환 실패, 기본값 사용: {raw_date_str}, 에러: {e}")
-        return datetime.now().isoformat()
+        return datetime.now(tz=ZoneInfo("Asia/Seoul")).isoformat()
 
 
 # Django 백엔드로 POST 요청 전송

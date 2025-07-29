@@ -27,7 +27,7 @@ class KeywordCreateAPIView(APIView):
             {
                 "message": f"총 {result['total_count']}건의 키워드가 수집되었습니다.",
                 "created_count": result["created_count"],
-                "skipped_count": result["skipped_count"],
+                "updated_count": result["updated_count"],
             },
             status=status.HTTP_201_CREATED,
         )

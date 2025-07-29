@@ -1,7 +1,8 @@
 from datetime import timedelta
+from zoneinfo import ZoneInfo
 
 from django.db.models import Count
-from django.db.models.functions import TruncDate
+from django.db.models.functions import Trunc, TruncDate
 from django.utils import timezone
 from django.utils.timezone import now
 from drf_spectacular.utils import OpenApiParameter, extend_schema
@@ -24,22 +25,23 @@ from apps.utils.permissions import IsAdmin
     description=(
         "관리자가 최근 7일 기준으로 자동 수집된 제목 수와 "
         "사용자 생성된 글 수를 일별로 확인할 수 있습니다.\n\n"
-        "- `keyword.created_at` 및 `generated_post.created_at` 기준\n"
+        "- `keyword.collected_at` 및 `generated_post.created_at` 기준\n"
         "- 최신 날짜부터 내림차순 정렬"
     ),
     responses={200: DailyStatsSerializer(many=True)},
 )
-# 일별 콘텐츠 수집/생성 통계 011
+# KST 기준으로 변경 / 최근 7일 콘텐츠 수집/생성 통계 011
 class DailyStatsAPIView(APIView):
     permission_classes = [IsAdmin]
 
     def get(self, request):
-        today = now().date()
+        seoul_tz = ZoneInfo("Asia/Seoul")
+        today = now().astimezone(seoul_tz).date()
         start_date = today - timedelta(days=6)
 
         keyword_qs = (
-            Keyword.objects.filter(created_at__date__range=(start_date, today))
-            .annotate(date=TruncDate("created_at"))
+            Keyword.objects.filter(collected_at__date__range=(start_date, today))
+            .annotate(date=TruncDate("collected_at", tzinfo=seoul_tz))
             .values("date")
             .annotate(collected_keywords=Count("id"))
             .order_by("-date")
@@ -47,26 +49,29 @@ class DailyStatsAPIView(APIView):
 
         post_qs = (
             GeneratedPost.objects.filter(created_at__date__range=(start_date, today))
-            .annotate(date=TruncDate("created_at"))
+            .annotate(date=TruncDate("created_at", tzinfo=seoul_tz))
             .values("date")
             .annotate(generated_posts=Count("id"))
             .order_by("-date")
         )
 
         stats_map = {}
+
         for item in keyword_qs:
-            stats_map[item["date"]] = {
-                "date": item["date"],
+            date = item["date"]
+            stats_map[date] = {
+                "date": date,
                 "collected_keywords": item["collected_keywords"],
                 "generated_posts": 0,
             }
 
         for item in post_qs:
-            if item["date"] in stats_map:
-                stats_map[item["date"]]["generated_posts"] = item["generated_posts"]
+            date = item["date"]
+            if date in stats_map:
+                stats_map[date]["generated_posts"] = item["generated_posts"]
             else:
-                stats_map[item["date"]] = {
-                    "date": item["date"],
+                stats_map[date] = {
+                    "date": date,
                     "collected_keywords": 0,
                     "generated_posts": item["generated_posts"],
                 }
