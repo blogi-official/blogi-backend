@@ -44,12 +44,28 @@ urlpatterns = [
     path("keywords/<int:id>/click/", KeywordClickLogView.as_view(), name="keyword-click"),
     # 마이페이지 생성 이력
     path("mypage/posts/", UserGeneratedPostListAPIView.as_view(), name="mypage-posts"),
-    path("mypage/posts/<int:pk>/", UserGeneratedPostDetailAPIView.as_view(), name="mypage-post-detail"),
+    path(
+        "mypage/posts/<int:pk>/",
+        UserGeneratedPostDetailAPIView.as_view(),
+        name="mypage-post-detail",
+    ),
     # 생성글 조회 및 부가 기능
-    path("posts/<int:pk>/", GeneratedPostPublicDetailAPIView.as_view(), name="generated-post-result"),
+    path(
+        "posts/<int:pk>/",
+        GeneratedPostPublicDetailAPIView.as_view(),
+        name="generated-post-result",
+    ),
     path("posts/<int:id>/copy/", PostCopyAPIView.as_view(), name="post-copy"),
-    path("posts/<int:id>/pdf/", PostPDFDownloadAPIView.as_view(), name="post-pdf-download"),
-    path("user/posts/<int:id>/", GeneratedPostDeleteAPIView.as_view(), name="user-post-delete"),
+    path(
+        "posts/<int:id>/pdf/",
+        PostPDFDownloadAPIView.as_view(),
+        name="post-pdf-download",
+    ),
+    path(
+        "user/posts/<int:id>/",
+        GeneratedPostDeleteAPIView.as_view(),
+        name="user-post-delete",
+    ),
     # 닉네임 수정 및 회원탈퇴
     path("user/nickname/", UserUpdateView.as_view(), name="user-update"),
     path("user/", UserDeleteView.as_view(), name="user-delete"),

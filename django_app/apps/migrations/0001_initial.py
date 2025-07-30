@@ -20,7 +20,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Keyword",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("title", models.CharField(max_length=255, unique=True)),
                 ("category", models.CharField(max_length=20)),
                 ("source_category", models.CharField(max_length=50)),
@@ -36,9 +44,20 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="User",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("password", models.CharField(max_length=128, verbose_name="password")),
-                ("last_login", models.DateTimeField(blank=True, null=True, verbose_name="last login")),
+                (
+                    "last_login",
+                    models.DateTimeField(blank=True, null=True, verbose_name="last login"),
+                ),
                 (
                     "is_superuser",
                     models.BooleanField(
@@ -58,8 +77,14 @@ class Migration(migrations.Migration):
                         verbose_name="username",
                     ),
                 ),
-                ("first_name", models.CharField(blank=True, max_length=150, verbose_name="first name")),
-                ("last_name", models.CharField(blank=True, max_length=150, verbose_name="last name")),
+                (
+                    "first_name",
+                    models.CharField(blank=True, max_length=150, verbose_name="first name"),
+                ),
+                (
+                    "last_name",
+                    models.CharField(blank=True, max_length=150, verbose_name="last name"),
+                ),
                 (
                     "is_staff",
                     models.BooleanField(
@@ -76,19 +101,34 @@ class Migration(migrations.Migration):
                         verbose_name="active",
                     ),
                 ),
-                ("date_joined", models.DateTimeField(default=django.utils.timezone.now, verbose_name="date joined")),
+                (
+                    "date_joined",
+                    models.DateTimeField(default=django.utils.timezone.now, verbose_name="date joined"),
+                ),
                 ("social_id", models.CharField(max_length=255)),
                 ("nickname", models.CharField(max_length=100)),
-                ("profile_image", models.CharField(blank=True, max_length=500, null=True)),
+                (
+                    "profile_image",
+                    models.CharField(blank=True, max_length=500, null=True),
+                ),
                 (
                     "provider",
                     models.CharField(
-                        choices=[("google", "Google"), ("naver", "Naver"), ("kakao", "Kakao")], max_length=20
+                        choices=[
+                            ("google", "Google"),
+                            ("naver", "Naver"),
+                            ("kakao", "Kakao"),
+                        ],
+                        max_length=20,
                     ),
                 ),
                 (
                     "role",
-                    models.CharField(choices=[("user", "User"), ("admin", "Admin")], default="user", max_length=10),
+                    models.CharField(
+                        choices=[("user", "User"), ("admin", "Admin")],
+                        default="user",
+                        max_length=10,
+                    ),
                 ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
@@ -126,13 +166,27 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="AdminLog",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("target_type", models.CharField(max_length=50)),
                 ("target_id", models.BigIntegerField()),
                 ("action", models.CharField(max_length=50)),
                 ("description", models.TextField(blank=True, null=True)),
                 ("logged_at", models.DateTimeField(auto_now_add=True)),
-                ("admin", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "admin",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
                 "db_table": "admin_log",
@@ -141,17 +195,43 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="GeneratedPost",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("title", models.CharField(max_length=255)),
                 ("content", models.TextField()),
-                ("image_1_url", models.CharField(blank=True, max_length=1000, null=True)),
-                ("image_2_url", models.CharField(blank=True, max_length=1000, null=True)),
-                ("image_3_url", models.CharField(blank=True, max_length=1000, null=True)),
+                (
+                    "image_1_url",
+                    models.CharField(blank=True, max_length=1000, null=True),
+                ),
+                (
+                    "image_2_url",
+                    models.CharField(blank=True, max_length=1000, null=True),
+                ),
+                (
+                    "image_3_url",
+                    models.CharField(blank=True, max_length=1000, null=True),
+                ),
                 ("copy_count", models.IntegerField(default=0)),
                 ("is_active", models.BooleanField(default=True)),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("user", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ("keyword", models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to="apps.keyword")),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "keyword",
+                    models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to="apps.keyword"),
+                ),
             ],
             options={
                 "db_table": "generated_post",
@@ -160,10 +240,30 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="CopyLog",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("copied_at", models.DateTimeField(auto_now_add=True)),
-                ("user", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ("post", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="apps.generatedpost")),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "post",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="apps.generatedpost",
+                    ),
+                ),
             ],
             options={
                 "db_table": "copy_log",
@@ -172,12 +272,29 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Image",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("image_url", models.CharField(max_length=1000)),
                 ("order", models.SmallIntegerField()),
-                ("description", models.CharField(blank=True, max_length=255, null=True)),
+                (
+                    "description",
+                    models.CharField(blank=True, max_length=255, null=True),
+                ),
                 ("collected_at", models.DateTimeField(auto_now_add=True)),
-                ("post", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="apps.generatedpost")),
+                (
+                    "post",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="apps.generatedpost",
+                    ),
+                ),
             ],
             options={
                 "db_table": "image",
@@ -186,12 +303,26 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="ClovaStudioLog",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("status", models.CharField(choices=[("success", "성공"), ("fail", "실패")], max_length=20)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(choices=[("success", "성공"), ("fail", "실패")], max_length=20),
+                ),
                 ("error_message", models.TextField(blank=True, null=True)),
                 ("response_time_ms", models.IntegerField(blank=True, null=True)),
                 ("requested_at", models.DateTimeField(auto_now_add=True)),
-                ("keyword", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="apps.keyword")),
+                (
+                    "keyword",
+                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="apps.keyword"),
+                ),
             ],
             options={
                 "db_table": "clova_studio_log",
@@ -200,11 +331,22 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Article",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("title", models.CharField(max_length=255)),
                 ("content", models.TextField()),
                 ("origin_link", models.CharField(max_length=1000)),
-                ("keyword", models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to="apps.keyword")),
+                (
+                    "keyword",
+                    models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to="apps.keyword"),
+                ),
             ],
             options={
                 "db_table": "article",
@@ -213,10 +355,27 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="KeywordClickLog",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("clicked_at", models.DateTimeField(auto_now_add=True)),
-                ("keyword", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="apps.keyword")),
-                ("user", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "keyword",
+                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="apps.keyword"),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
                 "db_table": "keyword_click_log",
@@ -225,7 +384,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="UserInterest",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "category",
                     models.CharField(
@@ -241,7 +408,13 @@ class Migration(migrations.Migration):
                         max_length=20,
                     ),
                 ),
-                ("user", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
                 "db_table": "user_interest",

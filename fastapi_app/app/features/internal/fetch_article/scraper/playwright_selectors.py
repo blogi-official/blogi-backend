@@ -10,4 +10,10 @@ DOMAIN_SELECTOR_MAP = {
 }
 
 # 기본 selector 리스트 (매핑 실패 시 사용)
-DEFAULT_SELECTORS = ["#dic_area", "article", ".article", ".view", "#articleBodyContents"]
+DEFAULT_SELECTORS = [
+    "#dic_area",
+    "article",
+    ".article",
+    ".view",
+    "#articleBodyContents",
+]

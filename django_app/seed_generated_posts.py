@@ -12,7 +12,12 @@ for i in range(5):
 
     keyword, created = Keyword.objects.get_or_create(
         title=title,
-        defaults={"category": "연예", "is_active": True, "is_collected": True, "collected_at": timezone.now()},
+        defaults={
+            "category": "연예",
+            "is_active": True,
+            "is_collected": True,
+            "collected_at": timezone.now(),
+        },
     )
 
     content = """

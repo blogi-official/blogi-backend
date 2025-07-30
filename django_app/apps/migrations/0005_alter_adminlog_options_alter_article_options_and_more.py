@@ -12,7 +12,10 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterModelOptions(
             name="adminlog",
-            options={"verbose_name": "관리자 로그", "verbose_name_plural": "관리자 로그 목록"},
+            options={
+                "verbose_name": "관리자 로그",
+                "verbose_name_plural": "관리자 로그 목록",
+            },
         ),
         migrations.AlterModelOptions(
             name="article",
@@ -20,15 +23,24 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterModelOptions(
             name="clovastudiolog",
-            options={"verbose_name": "Clova 처리 기록", "verbose_name_plural": "Clova 처리 기록 목록"},
+            options={
+                "verbose_name": "Clova 처리 기록",
+                "verbose_name_plural": "Clova 처리 기록 목록",
+            },
         ),
         migrations.AlterModelOptions(
             name="copylog",
-            options={"verbose_name": "복사 기록", "verbose_name_plural": "복사 기록 목록"},
+            options={
+                "verbose_name": "복사 기록",
+                "verbose_name_plural": "복사 기록 목록",
+            },
         ),
         migrations.AlterModelOptions(
             name="generatedpost",
-            options={"verbose_name": "생성된 글", "verbose_name_plural": "생성된 글 목록"},
+            options={
+                "verbose_name": "생성된 글",
+                "verbose_name_plural": "생성된 글 목록",
+            },
         ),
         migrations.AlterModelOptions(
             name="image",
@@ -40,7 +52,10 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterModelOptions(
             name="keywordclicklog",
-            options={"verbose_name": "키워드 클릭 기록", "verbose_name_plural": "키워드 클릭 기록 목록"},
+            options={
+                "verbose_name": "키워드 클릭 기록",
+                "verbose_name_plural": "키워드 클릭 기록 목록",
+            },
         ),
         migrations.AlterModelOptions(
             name="user",
@@ -48,7 +63,10 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterModelOptions(
             name="userinterest",
-            options={"verbose_name": "사용자 관심사", "verbose_name_plural": "사용자 관심사 목록"},
+            options={
+                "verbose_name": "사용자 관심사",
+                "verbose_name_plural": "사용자 관심사 목록",
+            },
         ),
         migrations.AlterField(
             model_name="keyword",

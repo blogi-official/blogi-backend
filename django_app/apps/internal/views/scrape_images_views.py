@@ -32,7 +32,10 @@ class KeywordNextImageTargetAPIView(APIView):
         keyword = Keyword.objects.filter(is_collected=False, article__isnull=False).order_by("created_at").first()
 
         if not keyword:
-            return Response({"detail": "수집 대상 키워드가 없습니다."}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"detail": "수집 대상 키워드가 없습니다."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
         serializer = self.serializer_class(keyword)
         return Response(serializer.data, status=status.HTTP_200_OK)

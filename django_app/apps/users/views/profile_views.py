@@ -33,7 +33,11 @@ from apps.utils.permissions import IsUser
                 "properties": {
                     "id": {"type": "integer", "example": 3},
                     "nickname": {"type": "string", "example": "블로기유저-2943"},
-                    "categories": {"type": "array", "items": {"type": "string"}, "example": ["경제", "연예"]},
+                    "categories": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "example": ["경제", "연예"],
+                    },
                 },
             },
             description="닉네임 및 관심사 설정 완료",
@@ -51,7 +55,10 @@ class UserInterestView(APIView):
         serializer = UserInterestSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
             result = serializer.save()
-            return Response({"message": "닉네임 및 관심사 설정 완료", "user_info": result}, status=status.HTTP_200_OK)
+            return Response(
+                {"message": "닉네임 및 관심사 설정 완료", "user_info": result},
+                status=status.HTTP_200_OK,
+            )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

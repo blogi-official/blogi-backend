@@ -78,8 +78,14 @@ class KeywordListAPIView(APIView):
     description="사용자가 키워드를 클릭할 때 클릭 이벤트를 기록합니다.",
     responses={
         201: {"type": "object", "example": {"message": "클릭 로그가 기록되었습니다."}},
-        401: {"type": "object", "example": {"detail": "자격 인증 정보가 포함되어 있지 않습니다."}},
-        404: {"type": "object", "example": {"detail": "해당 키워드를 찾을 수 없습니다."}},
+        401: {
+            "type": "object",
+            "example": {"detail": "자격 인증 정보가 포함되어 있지 않습니다."},
+        },
+        404: {
+            "type": "object",
+            "example": {"detail": "해당 키워드를 찾을 수 없습니다."},
+        },
     },
 )
 # 키워드 클릭 기록

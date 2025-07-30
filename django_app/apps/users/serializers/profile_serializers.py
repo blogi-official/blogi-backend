@@ -11,7 +11,8 @@ from apps.models import User, UserInterest
 class UserInterestSerializer(serializers.Serializer):
     nickname = serializers.CharField(max_length=20, required=False)
     categories = serializers.ListField(
-        child=serializers.ChoiceField(choices=UserInterest.InterestCategory.choices), allow_empty=False
+        child=serializers.ChoiceField(choices=UserInterest.InterestCategory.choices),
+        allow_empty=False,
     )
 
     def validate_nickname(self, value):

@@ -94,8 +94,18 @@ class DailyStatsAPIView(APIView):
         "- keyword_click_log 테이블을 기준으로 집계됩니다."
     ),
     parameters=[
-        OpenApiParameter(name="days", type=int, description="최근 며칠 기준 집계 (기본 7)", required=False),
-        OpenApiParameter(name="limit", type=int, description="조회할 상위 개수 (기본 5)", required=False),
+        OpenApiParameter(
+            name="days",
+            type=int,
+            description="최근 며칠 기준 집계 (기본 7)",
+            required=False,
+        ),
+        OpenApiParameter(
+            name="limit",
+            type=int,
+            description="조회할 상위 개수 (기본 5)",
+            required=False,
+        ),
     ],
     responses={200: TopKeywordSerializer(many=True)},
 )

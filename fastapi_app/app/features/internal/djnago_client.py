@@ -19,7 +19,9 @@ async def send_keywords_to_django(data_list):
 
 
 # POST
-async def send_articles_to_django(data_list: Union[Dict[str, str], List[Dict[str, str]]]):
+async def send_articles_to_django(
+    data_list: Union[Dict[str, str], List[Dict[str, str]]],
+):
     # 리스트가 아닐 경우, 리스트로 감싸기
     if not isinstance(data_list, list):
         data_list = [data_list]

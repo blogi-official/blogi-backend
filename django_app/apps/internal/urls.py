@@ -21,15 +21,14 @@ from apps.internal.views.scrape_images_views import (
 app_name = "internal"
 
 urlpatterns = [
-    path("internal/posts/", KeywordCreateAPIView.as_view(), name="internal-posts-create"),
     path(
-        "internal/keywords/next-image-target/",
+        "keywords/next-image-target/",
         KeywordNextImageTargetAPIView.as_view(),
         name="internal-keywords-next-image-target",
     ),
-    path("internal/images/", ImageSaveAPIView.as_view(), name="internal-images-save"),
+    path("images/", ImageSaveAPIView.as_view(), name="internal-images-save"),
     path(
-        "internal/keywords/<int:id>/collected/",
+        "keywords/<int:id>/collected/",
         KeywordMarkCollectedAPIView.as_view(),
         name="internal-keywords-mark-collected",
     ),
