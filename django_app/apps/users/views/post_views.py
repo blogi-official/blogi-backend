@@ -180,11 +180,15 @@ class GeneratedPostDeleteAPIView(APIView):
         try:
             post = GeneratedPost.objects.get(id=id)
         except GeneratedPost.DoesNotExist:
-            return Response({"detail": "해당 ID의 콘텐츠가 존재하지 않습니다."}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"detail": "해당 ID의 콘텐츠가 존재하지 않습니다."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
         if post.user_id != user.id:
             return Response(
-                {"detail": "다른 사용자가 생성한 콘텐츠는 삭제할 수 없습니다."}, status=status.HTTP_403_FORBIDDEN
+                {"detail": "다른 사용자가 생성한 콘텐츠는 삭제할 수 없습니다."},
+                status=status.HTTP_403_FORBIDDEN,
             )
 
         post.delete()  # CASCADE로 연결된 copy_log, image 자동 삭제

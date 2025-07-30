@@ -36,21 +36,37 @@ urlpatterns = [
     path("auth/kakao/swagger-login/", KakaoLoginDocView.as_view(), name="kakao-login-doc"),
     path("auth/naver/swagger-login/", NaverLoginDocView.as_view(), name="naver-login-doc"),
     # 닉네임 카테고리 설정
-    path("user/interests", UserInterestView.as_view(), name="user-interests"),
+    path("user/interests/", UserInterestView.as_view(), name="user-interests"),
     # 프로필 조회
-    path("mypage/me", UserProfileAPIView.as_view()),
-    # 키워드 조회
-    path("keywords", KeywordListAPIView.as_view(), name="keyword-list"),
-    # 키워드 클릭 기록 동록
-    path("keywords/<int:id>/click", KeywordClickLogView.as_view(), name="keyword-click"),
-    # 마이 페이지 생성 이력 조회
-    path("mypage/posts", UserGeneratedPostListAPIView.as_view(), name="mypage-posts"),
-    path("mypage/posts/<int:pk>", UserGeneratedPostDetailAPIView.as_view(), name="mypage-post-detail"),
-    # Mypage 생성 이력 상세조회 / 복사기능 / PDF 다운로드 / 삭제 / 닉네임 관심사 수정 / 회원탈퇴
-    path("posts/<int:pk>", GeneratedPostPublicDetailAPIView.as_view(), name="generated-post-result"),
-    path("posts/<int:id>/copy", PostCopyAPIView.as_view(), name="post-copy"),
-    path("posts/<int:id>/pdf", PostPDFDownloadAPIView.as_view()),
-    path("user/posts/<int:id>", GeneratedPostDeleteAPIView.as_view()),
-    path("user/nickname", UserUpdateView.as_view(), name="user-update"),
-    path("user", UserDeleteView.as_view(), name="user-delete"),
+    path("mypage/me/", UserProfileAPIView.as_view(), name="mypage-profile"),
+    # 키워드 조회 및 클릭 기록
+    path("keywords/", KeywordListAPIView.as_view(), name="keyword-list"),
+    path("keywords/<int:id>/click/", KeywordClickLogView.as_view(), name="keyword-click"),
+    # 마이페이지 생성 이력
+    path("mypage/posts/", UserGeneratedPostListAPIView.as_view(), name="mypage-posts"),
+    path(
+        "mypage/posts/<int:pk>/",
+        UserGeneratedPostDetailAPIView.as_view(),
+        name="mypage-post-detail",
+    ),
+    # 생성글 조회 및 부가 기능
+    path(
+        "posts/<int:pk>/",
+        GeneratedPostPublicDetailAPIView.as_view(),
+        name="generated-post-result",
+    ),
+    path("posts/<int:id>/copy/", PostCopyAPIView.as_view(), name="post-copy"),
+    path(
+        "posts/<int:id>/pdf/",
+        PostPDFDownloadAPIView.as_view(),
+        name="post-pdf-download",
+    ),
+    path(
+        "user/posts/<int:id>/",
+        GeneratedPostDeleteAPIView.as_view(),
+        name="user-post-delete",
+    ),
+    # 닉네임 수정 및 회원탈퇴
+    path("user/nickname/", UserUpdateView.as_view(), name="user-update"),
+    path("user/", UserDeleteView.as_view(), name="user-delete"),
 ]

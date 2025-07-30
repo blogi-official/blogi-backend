@@ -31,7 +31,10 @@ from apps.utils.permissions import IsAdmin
     description="관리자(superuser 또는 role=admin)만 로그인할 수 있으며, access token 유효시간은 6시간입니다.",
     request=AdminLoginSerializer,
     responses={
-        200: {"type": "object", "example": {"access": "<access_token>", "refresh": "<refresh_token>"}},
+        200: {
+            "type": "object",
+            "example": {"access": "<access_token>", "refresh": "<refresh_token>"},
+        },
         403: {"description": "관리자 권한이 없습니다."},
         401: {"description": "인증 실패"},
     },
@@ -71,10 +74,30 @@ class AdminLoginAPIView(APIView):
     description="관리자가 가입한 유저의 목록을 이메일, 가입일 기준으로 조회합니다.",
     parameters=[
         OpenApiParameter(name="page", type=int, required=False, description="페이지 번호 (기본: 1)"),
-        OpenApiParameter(name="size", type=int, required=False, description="한 페이지당 항목 수 (기본: 20)"),
-        OpenApiParameter(name="sort", type=str, required=False, description="정렬 필드 (예: created_at)"),
-        OpenApiParameter(name="order", type=str, required=False, description="정렬 방식 (asc 또는 desc)"),
-        OpenApiParameter(name="email", type=str, required=False, description="이메일 검색 (부분 또는 정확 일치)"),
+        OpenApiParameter(
+            name="size",
+            type=int,
+            required=False,
+            description="한 페이지당 항목 수 (기본: 20)",
+        ),
+        OpenApiParameter(
+            name="sort",
+            type=str,
+            required=False,
+            description="정렬 필드 (예: created_at)",
+        ),
+        OpenApiParameter(
+            name="order",
+            type=str,
+            required=False,
+            description="정렬 방식 (asc 또는 desc)",
+        ),
+        OpenApiParameter(
+            name="email",
+            type=str,
+            required=False,
+            description="이메일 검색 (부분 또는 정확 일치)",
+        ),
     ],
     responses={
         200: {
@@ -133,9 +156,17 @@ class AdminUserListAPIView(ListAPIView):
     ),
     parameters=[
         OpenApiParameter(
-            name="limit", type=OpenApiTypes.INT, required=False, description="페이지당 항목 수 (기본: 30)"
+            name="limit",
+            type=OpenApiTypes.INT,
+            required=False,
+            description="페이지당 항목 수 (기본: 30)",
         ),
-        OpenApiParameter(name="offset", type=OpenApiTypes.INT, required=False, description="시작 인덱스 (기본: 0)"),
+        OpenApiParameter(
+            name="offset",
+            type=OpenApiTypes.INT,
+            required=False,
+            description="시작 인덱스 (기본: 0)",
+        ),
     ],
     responses={200: AdminUserGeneratedPostSerializer(many=True)},
 )

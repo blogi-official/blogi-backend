@@ -18,7 +18,15 @@ from apps.models import (
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
     model = User
-    list_display = ("id", "email", "nickname", "provider", "role", "is_staff", "is_active")
+    list_display = (
+        "id",
+        "email",
+        "nickname",
+        "provider",
+        "role",
+        "is_staff",
+        "is_active",
+    )
     list_filter = ("provider", "role", "is_staff", "is_superuser", "is_active")
     search_fields = ("email", "nickname")
     ordering = ("id",)
@@ -27,7 +35,19 @@ class UserAdmin(BaseUserAdmin):
         (None, {"fields": ("email", "password")}),
         ("개인정보", {"fields": ("nickname", "profile_image")}),
         ("OAuth 정보", {"fields": ("social_id", "provider")}),
-        ("권한", {"fields": ("role", "is_staff", "is_active", "is_superuser", "groups", "user_permissions")}),
+        (
+            "권한",
+            {
+                "fields": (
+                    "role",
+                    "is_staff",
+                    "is_active",
+                    "is_superuser",
+                    "groups",
+                    "user_permissions",
+                )
+            },
+        ),
         ("중요 날짜", {"fields": ("last_login", "date_joined")}),
     )
 
@@ -36,7 +56,16 @@ class UserAdmin(BaseUserAdmin):
             None,
             {
                 "classes": ("wide",),
-                "fields": ("email", "password1", "password2", "nickname", "provider", "role", "is_staff", "is_active"),
+                "fields": (
+                    "email",
+                    "password1",
+                    "password2",
+                    "nickname",
+                    "provider",
+                    "role",
+                    "is_staff",
+                    "is_active",
+                ),
             },
         ),
     )
@@ -73,7 +102,15 @@ class ArticleAdmin(admin.ModelAdmin):
 
 @admin.register(GeneratedPost)
 class GeneratedPostAdmin(admin.ModelAdmin):
-    list_display = ("id", "title", "user", "keyword", "copy_count", "is_active", "created_at")
+    list_display = (
+        "id",
+        "title",
+        "user",
+        "keyword",
+        "copy_count",
+        "is_active",
+        "created_at",
+    )
     list_filter = ("is_active",)
     search_fields = ("title", "user__email", "user__nickname", "keyword__title")
 

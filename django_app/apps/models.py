@@ -156,7 +156,8 @@ class AdminLog(models.Model):
 
 
 class Image(models.Model):
-    post = models.ForeignKey(GeneratedPost, on_delete=models.CASCADE)
+    keyword = models.ForeignKey(Keyword, on_delete=models.CASCADE)  # 이미지의 진짜 소유자
+    post = models.ForeignKey(GeneratedPost, on_delete=models.SET_NULL, null=True, blank=True)  # 선택적 연결
     image_url = models.CharField(max_length=1000)
     order = models.SmallIntegerField()
     description = models.CharField(max_length=255, null=True, blank=True)
@@ -168,7 +169,9 @@ class Image(models.Model):
         verbose_name_plural = "이미지 목록"
 
     def __str__(self) -> str:
-        return f"Post#{self.post.id} - Image {self.order}"
+        if self.post:
+            return f"Post#{self.post.id} - Image {self.order}"
+        return f"(미연결) Image {self.order}"
 
 
 class KeywordClickLog(models.Model):

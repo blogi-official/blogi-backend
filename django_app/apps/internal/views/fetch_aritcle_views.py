@@ -28,10 +28,16 @@ class KeywordListAPIView(APIView):
         try:
             keywords = Keyword.objects.order_by("-created_at")
         except Keyword.DoesNotExist:
-            return Response({"detail": "키워드가 존재하지 않습니다."}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"detail": "키워드가 존재하지 않습니다."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
         serializer = self.serializer_class(keywords, many=True)
-        return Response({"message": "키워드 목록 조회 완료", "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response(
+            {"message": "키워드 목록 조회 완료", "data": serializer.data},
+            status=status.HTTP_200_OK,
+        )
 
 
 @extend_schema(
