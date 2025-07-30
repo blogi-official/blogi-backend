@@ -23,6 +23,9 @@ class ScrapedKeywordBulkListSerializer(serializers.ListSerializer):
 
         for item in validated_data:
             key = (item["title"], item["category"])
+            is_collected = item.get("is_collected", False)
+            is_active = item.get("is_active", True)
+
             if key in existing_map:
                 obj = existing_map[key]
 
@@ -47,6 +50,7 @@ class ScrapedKeywordBulkListSerializer(serializers.ListSerializer):
                         source_category=item["source_category"],
                         collected_at=item["collected_at"],
                         is_collected=item.get("is_collected", False),
+                        is_active=item.get("is_active", True),
                     )
                 )
 
@@ -54,7 +58,7 @@ class ScrapedKeywordBulkListSerializer(serializers.ListSerializer):
         if to_create:
             Keyword.objects.bulk_create(to_create)
         if to_update:
-            Keyword.objects.bulk_update(to_update, ["collected_at", "source_category", "is_collected"])
+            Keyword.objects.bulk_update(to_update, ["collected_at", "source_category", "is_collected", "is_active"])
 
         return {
             "created": to_create,
@@ -68,7 +72,7 @@ class ScrapedKeywordBulkListSerializer(serializers.ListSerializer):
 class ScrapedKeywordBulkCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Keyword
-        fields = ["title", "category", "source_category", "collected_at", "is_collected"]
+        fields = ["title", "category", "source_category", "collected_at", "is_collected", "is_active"]
         list_serializer_class = ScrapedKeywordBulkListSerializer
         validators = []  # unique validation 비활성화
 

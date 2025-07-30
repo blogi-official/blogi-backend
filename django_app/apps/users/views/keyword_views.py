@@ -58,7 +58,7 @@ class KeywordListAPIView(APIView):
         assert isinstance(user, User)
         user_categories = user.userinterest_set.values_list("category", flat=True)
 
-        qs = Keyword.objects.filter(is_active=True)
+        qs = Keyword.objects.filter(is_active=True, is_collected=True)
 
         # 관심사 우선 정렬
         keyword_queryset = list(qs.filter(category__in=user_categories).order_by("-collected_at")) + list(

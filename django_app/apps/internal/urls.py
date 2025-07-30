@@ -12,10 +12,27 @@ from apps.internal.views.fetch_aritcle_views import (
     KeywordListAPIView,
 )
 from apps.internal.views.scrap_titles_views import KeywordCreateAPIView
+from apps.internal.views.scrape_images_views import (
+    ImageSaveAPIView,
+    KeywordMarkCollectedAPIView,
+    KeywordNextImageTargetAPIView,
+)
 
 app_name = "internal"
 
 urlpatterns = [
+    path("internal/posts/", KeywordCreateAPIView.as_view(), name="internal-posts-create"),
+    path(
+        "internal/keywords/next-image-target/",
+        KeywordNextImageTargetAPIView.as_view(),
+        name="internal-keywords-next-image-target",
+    ),
+    path("internal/images/", ImageSaveAPIView.as_view(), name="internal-images-save"),
+    path(
+        "internal/keywords/<int:id>/collected/",
+        KeywordMarkCollectedAPIView.as_view(),
+        name="internal-keywords-mark-collected",
+    ),
     # 키워드 생성: FastAPI가 네이버 등에서 수집한 키워드를 Django에 저장할 때 사용 (POST)
     path("posts/", KeywordCreateAPIView.as_view(), name="keyword-create"),
     # 키워드 목록 조회: FastAPI가 본문 수집 대상 키워드를 조회할 때 사용 (GET)
