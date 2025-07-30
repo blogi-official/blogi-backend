@@ -1,13 +1,18 @@
-# naver_api.py
 import asyncio
+from typing import Mapping, Union
 
 import httpx
 
 from app.core.config import settings
 
+
 async def search_news(query: str, display: int = 1):
     url = "https://openapi.naver.com/v1/search/news.json"
-    params = {"query": query, "display": display, "sort": "date"}
+    params: Mapping[str, Union[str, int]] = {
+        "query": query,
+        "display": display,
+        "sort": "date",
+    }
     headers = {
         "X-Naver-Client-Id": settings.naver_client_id,
         "X-Naver-Client-Secret": settings.naver_client_secret,

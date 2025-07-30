@@ -1,15 +1,22 @@
-# http_client.py
-
 import logging
-from typing import Any, Dict
+from typing import Any, Dict, Optional
+
 import httpx
+
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
-async def get_json(url: str, headers: Dict[str, str] = None) -> Any:
-    logger.info(f"API 호출 URL: {url}")
+
+async def get_json(url: str, headers: Optional[Dict[str, str]] = None) -> Any:
+    default_headers = {
+        "X-Internal-Secret": settings.internal_secret_key or "",
+    }
+    if headers:
+        default_headers.update(headers)
+
     async with httpx.AsyncClient() as client:
-        response = await client.get(url, headers=headers)
+        response = await client.get(url, headers=default_headers)
         logger.info(f"GET {url} response status: {response.status_code}")
         logger.info(f"Response text: {response.text}")
 
@@ -26,8 +33,11 @@ async def get_json(url: str, headers: Dict[str, str] = None) -> Any:
         return data.get("data", [])
 
 
-async def post_json(url: str, data: Any, headers: Dict[str, str] = None) -> Any:
-    default_headers = {"Content-Type": "application/json"}
+async def post_json(url: str, data: Any, headers: Optional[Dict[str, str]] = None) -> Any:
+    default_headers = {
+        "X-Internal-Secret": settings.internal_secret_key or "",
+        "Content-Type": "application/json",
+    }
     if headers:
         default_headers.update(headers)
 

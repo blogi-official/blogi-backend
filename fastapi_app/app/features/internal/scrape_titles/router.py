@@ -11,7 +11,7 @@ api_key_header = APIKeyHeader(name="x-internal-secret", auto_error=True)
 
 
 # 숏텐츠 제목(키워드) 스크랩
-@scrape_title_router.get("/titles")
+@scrape_title_router.get("/titles/")
 async def scrape_titles(x_internal_secret: str = Security(api_key_header)):
     if x_internal_secret != settings.internal_secret_key:
         raise HTTPException(status_code=403, detail="Invalid internal secret")

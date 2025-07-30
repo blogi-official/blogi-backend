@@ -6,9 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     # django_api
-    django_api_url: str = Field(
-        default="http://localhost:8000", description="Django API base URL"
-    )
+    django_api_url: str = Field(default="http://localhost:8000", description="Django API base URL")
     django_api_endpoint_keywords_get: str = Field(..., description="Django GET API 키워드 목록 조회(GET) URL")
     django_api_endpoint_keywords_post: str = Field(..., description="Django API 키워드 저장(POST) 저장 URL")
     django_api_endpoint_articles_post: str = Field(..., description="Django API 기사 본문 저장(POST) 본문 URL")

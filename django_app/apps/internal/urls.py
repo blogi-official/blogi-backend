@@ -7,8 +7,11 @@
 """
 from django.urls import path
 
+from apps.internal.views.fetch_aritcle_views import (
+    ArticleCreateAPIView,
+    KeywordListAPIView,
+)
 from apps.internal.views.scrap_titles_views import KeywordCreateAPIView
-from apps.internal.views.fetch_aritcle_views import KeywordListAPIView, ArticleCreateAPIView
 
 app_name = "internal"
 

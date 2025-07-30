@@ -1,18 +1,16 @@
-import json
-
 from app.common.logger import get_logger
 from app.common.utils.html_utils import clean_article_content, clean_html
-from app.core.config import settings
-
-from app.features.internal.djnago_client import fetch_keywords_from_django, send_articles_to_django
+from app.features.internal.djnago_client import (
+    fetch_keywords_from_django,
+    send_articles_to_django,
+)
 from app.features.internal.fetch_article.naver_api import search_news
-from app.features.internal.fetch_article.naver_scraper import extract_article_content
-
+from app.features.internal.fetch_article.scraper.naver_scraper import (
+    extract_article_content,
+)
 
 logger = get_logger(__name__)
 
-# DJANGO_API_URL_KEYWORDS = settings.django_api_endpoint_keywords_get
-# INTERNAL_SECRET_KEY = settings.internal_secret_key
 
 async def scrape_and_send_articles():
     # 1. Django에서 키워드 목록 받아오기
@@ -24,7 +22,6 @@ async def scrape_and_send_articles():
     # 2. 키워드별 처리
     for keyword in keywords:
         if not isinstance(keyword, dict):
-            logger.warning(f"keyword가 dict가 아님: {keyword}")
             continue
 
         title = keyword.get("title")
@@ -68,9 +65,12 @@ async def scrape_and_send_articles():
 
             # 5. 수집한 기사 일괄 Django로 전송
             if scraped_articles:
-                logger.info(f"[SEND TO DJANGO] payload data: {json.dumps(scraped_articles, ensure_ascii=False)}")
-                await send_articles_to_django(scraped_articles)
+                result = await send_articles_to_django(scraped_articles)
                 logger.info(f"기사 전송 성공: {title}")
+
+                return result
 
         except Exception as e:
             logger.error(f"[ERROR] '{title}' 처리 중 에러: {e}", exc_info=True)
+
+    return {"message": "수집된 기사가 없습니다."}

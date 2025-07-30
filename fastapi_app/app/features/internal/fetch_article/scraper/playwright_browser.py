@@ -1,8 +1,7 @@
-# app/utils/playwright_browser.py
-
 from playwright.async_api import async_playwright
 
 _browser = None
+
 
 async def get_browser():
     global _browser

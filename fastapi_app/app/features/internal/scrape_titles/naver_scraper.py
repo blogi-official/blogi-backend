@@ -5,13 +5,10 @@ from datetime import datetime, timezone
 from playwright.async_api import async_playwright
 
 from app.common.logger import get_logger
+from app.common.utils.text_utils import clean_text
 from app.features.internal.scrape_titles.config import CATEGORY_MAP
 
 logger = get_logger(__name__)
-
-
-def clean_text(text: str) -> str:
-    return re.sub(r"[\u200b-\u200f\u202a-\u202e\u2060-\u206f\ue000-\uf8ff]", "", text).strip()
 
 
 # 각 카테고리에 대해 네이버 검색에서 제목(키워드) 리스트 수집
