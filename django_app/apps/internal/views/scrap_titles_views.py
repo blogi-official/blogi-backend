@@ -10,8 +10,8 @@ from apps.internal.serializers.scrap_titles_serializers import (
 
 
 @extend_schema(
-    tags=["[Internal] Keyword - 내부 연동"],
-    summary="스크랩 키워드 저장",
+    tags=["[Internal] FastAPI ↔ Django - 콘텐츠 동기화"],
+    summary="스크랩 키워드 생성",
     description="FastAPI에서 수집한 키워드를 저장하고, 생성/중복 개수를 반환합니다.",
 )
 class KeywordCreateAPIView(APIView):
