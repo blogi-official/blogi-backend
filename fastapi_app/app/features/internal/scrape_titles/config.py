@@ -1,4 +1,4 @@
-# 카테고리 이름 매핑과 Django API 주소 정의
+# 카테고리 이름 매핑
 CATEGORY_MAP = {
     "연예": "엔터 종합",
     "경제": "경제 종합",
@@ -8,5 +8,3 @@ CATEGORY_MAP = {
     "여행": "여행맛집 종합",
     "맛집": "맛집/카페",
 }
-
-DJANGO_API_ENDPOINT = f"http://localhost:8000/api/internal/posts/"
