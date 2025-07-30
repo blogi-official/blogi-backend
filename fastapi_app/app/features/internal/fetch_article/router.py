@@ -8,12 +8,12 @@ from app.features.internal.fetch_article.services import scrape_and_send_article
 from app.features.internal.scrape_titles.services import \
     fetch_and_send_to_django
 
-scrape_title_router = APIRouter(prefix="/fetch", tags=["Article - Scraper"])
+fetch_article_router = APIRouter(prefix="/fetch", tags=["Article - Scraper"])
 api_key_header = APIKeyHeader(name="x-internal-secret", auto_error=True)
 
 
 # 기사 본문 스크랩
-@scrape_title_router.get("/article")
+@fetch_article_router.get("/article")
 async def get_article(x_internal_secret: str = Security(api_key_header)):
     if x_internal_secret != settings.internal_secret_key:
         raise HTTPException(status_code=403, detail="Invalid internal secret")

@@ -97,7 +97,7 @@ async def fetch_and_send_to_django():
 
         logger.info(
             "Django API로 보내는 데이터:\n%s",
-            json.dumps(keywords, ensure_ascii=False, indent=2),
+            #json.dumps(keywords, ensure_ascii=False, indent=2),
         )
 
         data = await call_django_api(keywords)

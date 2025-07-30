@@ -6,7 +6,7 @@ from app.features.internal.scrape_titles.scheduler import register_periodic_task
 app = FastAPI()
 app.include_router(api_router)
 
-register_periodic_tasks(app)
+#register_periodic_tasks(app)
 
 
 @app.get("/")

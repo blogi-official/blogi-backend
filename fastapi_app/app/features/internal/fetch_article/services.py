@@ -1,25 +1,32 @@
-from app.common.logger import get_logger
-from app.common.http_client import send_articles_to_django  # 본문 전송용 공통 함수
-from app.core.config import settings
-import httpx
+import json
 
-from app.features.internal.djnago_client import fetch_keywords_from_django
+from app.common.logger import get_logger
+from app.common.utils.html_utils import clean_article_content, clean_html
+from app.core.config import settings
+
+from app.features.internal.djnago_client import fetch_keywords_from_django, send_articles_to_django
 from app.features.internal.fetch_article.naver_api import search_news
 from app.features.internal.fetch_article.naver_scraper import extract_article_content
 
+
 logger = get_logger(__name__)
 
-DJANGO_API_URL_KEYWORDS = settings.django_api_endpoint_keywords
-INTERNAL_SECRET_KEY = settings.internal_secret_key
+# DJANGO_API_URL_KEYWORDS = settings.django_api_endpoint_keywords_get
+# INTERNAL_SECRET_KEY = settings.internal_secret_key
 
 async def scrape_and_send_articles():
-    # Django에서 키워드 목록 가져오기
+    # 1. Django에서 키워드 목록 받아오기
     keywords = await fetch_keywords_from_django()
     if not keywords:
         logger.info("키워드를 가져오지 못했습니다.")
         return
 
+    # 2. 키워드별 처리
     for keyword in keywords:
+        if not isinstance(keyword, dict):
+            logger.warning(f"keyword가 dict가 아님: {keyword}")
+            continue
+
         title = keyword.get("title")
         keyword_id = keyword.get("id")
 
@@ -27,33 +34,43 @@ async def scrape_and_send_articles():
             logger.warning(f"키워드 데이터 누락: {keyword}")
             continue
 
-        # 네이버 뉴스 검색 → 본문 추출 → Django로 전송
+        logger.debug(f"처리 중 키워드: id={keyword_id}, title={title}")
+
         try:
-            results = await search_news(title)
+            # 3. 네이버 뉴스 display개 검색
+            results = await search_news(title, display=3)
             if not results:
                 logger.info(f"뉴스 검색 결과 없음: {title}")
                 continue
 
-            first = results[0]
-            origin_link = first.get("originallink")
-            if not origin_link:
-                logger.info(f"뉴스 링크 없음: {title}")
-                continue
+            scraped_articles = []
 
-            content = await extract_article_content(origin_link)
-            if not content:
-                logger.info(f"기사 본문 추출 실패: {title}")
-                continue
+            # 4. 뉴스별 본문 추출 및 정제
+            for result in results:
+                origin_link = result.get("originallink")
+                if not origin_link:
+                    continue
 
-            payload = {
-                "keyword_id": keyword_id,
-                "title": title,
-                "origin_link": origin_link,
-                "content": content,
-            }
+                content = await extract_article_content(origin_link)
+                if not content:
+                    logger.info(f"본문 추출 실패: {origin_link}")
+                    continue
 
-            await send_articles_to_django(payload)
-            logger.info(f"기사 전송 성공: {title}")
+                cleaned_content = clean_article_content(content)
+
+                payload = {
+                    "keyword_id": keyword["id"],
+                    "title": clean_html(result.get("title")),
+                    "origin_link": origin_link,
+                    "content": cleaned_content,
+                }
+                scraped_articles.append(payload)
+
+            # 5. 수집한 기사 일괄 Django로 전송
+            if scraped_articles:
+                logger.info(f"[SEND TO DJANGO] payload data: {json.dumps(scraped_articles, ensure_ascii=False)}")
+                await send_articles_to_django(scraped_articles)
+                logger.info(f"기사 전송 성공: {title}")
 
         except Exception as e:
             logger.error(f"[ERROR] '{title}' 처리 중 에러: {e}", exc_info=True)
