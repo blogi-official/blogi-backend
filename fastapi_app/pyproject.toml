@@ -21,7 +21,9 @@ dependencies = [
     "python-jose[cryptography] (>=3.5.0,<4.0.0)",
     "typing-inspect (>=0.9.0,<0.10.0)",
     "beautifulsoup4 (>=4.13.4,<5.0.0)",
-    "display (>=1.0.0,<2.0.0)"
+    "display (>=1.0.0,<2.0.0)",
+    "konlpy (>=0.6.0,<0.7.0)",
+    "jpype1 (>=1.6.0,<2.0.0)"
 ]
 
 

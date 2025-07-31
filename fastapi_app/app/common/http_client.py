@@ -58,3 +58,57 @@ async def post_json(url: str, data: Any, headers: Optional[Dict[str, str]] = Non
             raise RuntimeError("API 응답 오류")
 
         return res_data
+
+
+# kakao 이미지용
+
+
+async def get_raw_json(url: str, headers: Optional[Dict[str, str]] = None) -> Any:
+    default_headers = {
+        "X-Internal-Secret": settings.internal_secret_key or "",
+    }
+    if headers:
+        default_headers.update(headers)
+
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url, headers=default_headers)
+        logger.info(f"[RAW GET] {url} response status: {response.status_code}")
+        logger.debug(f"[RAW GET] Response text: {response.text[:100]}")
+
+        try:
+            data = response.json()
+        except Exception:
+            logger.error("RAW JSON parsing error", exc_info=True)
+            raise RuntimeError("API 응답 오류")
+
+        if response.status_code != 200:
+            logger.error(f"[RAW GET] API 응답 오류: status={response.status_code}, body={data}")
+            raise RuntimeError("API 응답 오류")
+
+        return data
+
+
+async def patch_json(url: str, data: dict, headers: Optional[Dict[str, str]] = None) -> Any:
+    default_headers = {
+        "Content-Type": "application/json",
+        "X-Internal-Secret": settings.internal_secret_key or "",
+    }
+    if headers:
+        default_headers.update(headers)
+
+    async with httpx.AsyncClient() as client:
+        response = await client.patch(url, json=data, headers=default_headers)
+        logger.info(f"[PATCH] {url} response status: {response.status_code}")
+        logger.debug(f"[PATCH] Response text: {response.text[:100]}")
+
+        try:
+            resp_data = response.json()
+        except Exception:
+            logger.error("[PATCH] JSON parsing error", exc_info=True)
+            raise RuntimeError("API 응답 오류")
+
+        if response.status_code not in (200, 204):
+            logger.error(f"[PATCH] API 응답 오류: status={response.status_code}, body={resp_data}")
+            raise RuntimeError("API 응답 오류")
+
+        return resp_data
