@@ -24,3 +24,12 @@ def clean_raw_data(item: dict) -> dict:
             item["collected_at"] = datetime.now(tz=ZoneInfo("Asia/Seoul")).isoformat()
 
     return item
+
+
+# 네이버 블로그 전용 본문 정제 함수
+def clean_naver_blog_content(content: str) -> str:
+    # 여기에 블로그 특유의 광고, 불필요 문구 제거 로직 추가
+    # 예시로 간단히 줄바꿈 제거 및 공백 정리
+    cleaned = content.replace("\n", " ").strip()
+    # 추가 필터링 구현 가능
+    return cleaned

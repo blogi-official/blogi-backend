@@ -1,4 +1,18 @@
-# scraper.py
+# news_scraper.py
+from urllib.parse import urlparse
+
+import httpx
+from bs4 import BeautifulSoup
+from playwright.async_api import async_playwright
+
+from app.common.logger import get_logger
+from app.features.internal.fetch_article.scraper.playwright_browser import get_browser
+from app.features.internal.fetch_article.scraper.playwright_selectors import (
+    DEFAULT_SELECTORS,
+    DOMAIN_SELECTOR_MAP,
+)
+
+logger = get_logger(__name__)  # news_scraper.py
 from urllib.parse import urlparse
 
 import httpx
@@ -16,7 +30,7 @@ logger = get_logger(__name__)
 
 
 # requests 기반 본문 추출
-async def extract_with_requests(url: str) -> str:
+async def extract_news_with_requests(url: str) -> str:
     try:
         headers = {"User-Agent": "Mozilla/5.0"}
         async with httpx.AsyncClient() as client:
@@ -31,7 +45,7 @@ async def extract_with_requests(url: str) -> str:
 
 
 # Playwright 기반 본문 추출
-async def extract_with_playwright(url: str) -> str:
+async def extract_news_with_playwright(url: str) -> str:
     try:
         async with async_playwright() as p:
             browser = await get_browser()  # 실제 브라우저 띄워서 동작 확인
@@ -73,14 +87,14 @@ async def extract_with_playwright(url: str) -> str:
 
 
 # 본문 추출 메인 함수
-async def extract_article_content(url: str) -> str:
-    content = await extract_with_requests(url)
+async def extract_news_content(url: str) -> str:
+    content = await extract_news_with_requests(url)
     if content or len(content) >= 100:
         logger.debug(f"[requests] 본문 추출 성공: {url}")
         return content
 
     logger.debug(f"[requests] 본문 추출 실패 또는 짧음, Playwright 재시도: {url}")
-    content = await extract_with_playwright(url)
+    content = await extract_news_with_playwright(url)
     if content:
         print(f"[DEBUG] [playwright] 성공: {url}")
     else:

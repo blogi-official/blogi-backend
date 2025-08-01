@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 class KeywordListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Keyword
-        fields = ["id", "title"]
+        fields = ["id", "title", "category"]
 
 
 # 기사 본문 생성(POST)
