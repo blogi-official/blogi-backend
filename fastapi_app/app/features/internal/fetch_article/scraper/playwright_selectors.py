@@ -35,15 +35,16 @@ DEFAULT_SELECTORS = [
     "div#content",
 ]
 
-# 블로그 도메인별 selector 매핑
 BLOG_DOMAIN_SELECTOR_MAP = {
-    "blog.naver.com": "div.se-viewer",  # PC 네이버 블로그
-    "m.blog.naver.com": "div.se-main-container",  # 모바일 네이버 블로그
+    "blog.naver.com": [
+        "div.se-viewer",  # 최신 에디터
+        "div.se-main-container",  # 모바일
+        "div#postViewArea",  # 구형 에디터
+    ]
 }
 
-# 블로그 기본 selector (도메인 미매칭 시)
 BLOG_DEFAULT_SELECTORS = [
-    "div.se-viewer",  # 전체 본문 컨테이너
-    "div.se-main-container",  # 모바일 블로그 컨테이너
-    "div#postViewArea",  # PC 블로그 컨테이너
+    "div.se-viewer",
+    "div.se-main-container",
+    "div#postViewArea",
 ]

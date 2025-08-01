@@ -73,7 +73,7 @@ async def get_raw_json(url: str, headers: Optional[Dict[str, str]] = None) -> An
     async with httpx.AsyncClient() as client:
         response = await client.get(url, headers=default_headers)
 
-        # ✅ 여기에 추가하세요
+        # 디버그
         logger.warning(f"[DEBUG] 요청 URL: {url}")
         logger.warning(f"[DEBUG] 응답 상태코드: {response.status_code}")
         logger.warning(f"[DEBUG] 응답 본문: {response.text[:300]}")

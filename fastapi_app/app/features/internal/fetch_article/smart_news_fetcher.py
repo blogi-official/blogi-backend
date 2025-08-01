@@ -69,7 +69,7 @@ async def try_search_and_extract(phrase: str) -> Optional[dict]:
         return None
 
     link = results[0]["link"]
-    content = await extract_news_content(link)
+    content = await extract_news_content(link, phrase)  #  keyword 인자 전달
     if not content:
         return None
 

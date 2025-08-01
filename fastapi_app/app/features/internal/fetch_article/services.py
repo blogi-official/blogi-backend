@@ -16,56 +16,58 @@ logger = get_logger(__name__)
 
 
 async def scrape_and_send_articles():
-    raw_response = await fetch_keywords_from_django()
-    keyword = raw_response.get("data")
+    while True:
+        raw_response = await fetch_keywords_from_django()
+        keyword = raw_response.get("data")
 
-    logger.info(f"fetch_keywords_from_django 결과: {keyword}")
+        logger.info(f"fetch_keywords_from_django 결과: {keyword}")
 
-    # 유효성 검증
-    if not keyword or not isinstance(keyword, dict):
-        logger.info("유효한 키워드가 없습니다.")
-        return {"message": "키워드가 존재하지 않습니다."}
+        # 키워드 없으면 루프 종료
+        if not keyword or not isinstance(keyword, dict):
+            logger.info("더 이상 수집할 키워드가 없습니다. 종료합니다.")
+            break
 
-    title = keyword.get("title")
-    keyword_id = keyword.get("id")
-    category = keyword.get("category")
+        title = keyword.get("title")
+        keyword_id = keyword.get("id")
+        category = keyword.get("category")
 
-    if not title or not keyword_id or not category:
-        logger.warning(f"키워드 데이터 누락 또는 카테고리 없음: {keyword}")
-        await deactivate_keyword(keyword_id)
-        return {"message": "키워드 정보 누락"}
-
-    category_info = CATEGORY_META_MAP.get(category)
-    if not category_info:
-        logger.warning(f"알 수 없는 카테고리: {category}")
-        await deactivate_keyword(keyword_id)
-        return {"message": "알 수 없는 카테고리"}
-
-    search_type = category_info["type"]
-    logger.info(f"[PROCESS] keyword_id={keyword_id}, title={title}, type={search_type}")
-
-    try:
-        if search_type == "news":
-            article = await fetch_smart_article(keyword_id, title)
-        else:
-            article = await fetch_smart_blog(keyword_id, title)
-
-        # None 또는 잘못된 형식 처리
-        if article is None:
-            logger.info(f"[FAIL] 스마트 수집 실패: keyword_id={keyword_id}, title={title}")
+        # 필수값 누락 시 비활성화 및 continue
+        if not title or not keyword_id or not category:
+            logger.warning(f"[SKIP] 필수 정보 누락: {keyword}")
             await deactivate_keyword(keyword_id)
-            return {"message": "수집 실패"}
-        if not isinstance(article, dict):
-            logger.warning(f"[FAIL] 수집 결과 형식 오류: keyword_id={keyword_id}, article={article}")
+            continue
+
+        category_info = CATEGORY_META_MAP.get(category)
+        if not category_info:
+            logger.warning(f"[SKIP] 알 수 없는 카테고리: {category}")
             await deactivate_keyword(keyword_id)
-            return {"message": "수집 결과 형식 오류"}
+            continue
 
-        logger.info(f"[SUCCESS] 수집 완료: keyword_id={keyword_id}, title={article['title']}")
-        result = await send_articles_to_django([article])
-        logger.info(f"[SEND] Django 저장 결과: {result}")
-        return result
+        search_type = category_info["type"]
+        logger.info(f"[PROCESS] keyword_id={keyword_id}, title={title}, type={search_type}")
 
-    except Exception as e:
-        logger.error(f"[ERROR] '{title}' 처리 중 에러: {e}", exc_info=True)
-        await deactivate_keyword(keyword_id)
-        return {"message": "처리 중 에러 발생"}
+        try:
+            # 블로그 vs 뉴스 처리
+            if search_type == "news":
+                article = await fetch_smart_article(keyword_id, title)
+            else:
+                article = await fetch_smart_blog(keyword_id, title)
+
+            if article is None:
+                logger.info(f"[FAIL] 수집 실패: keyword_id={keyword_id}, title={title}")
+                await deactivate_keyword(keyword_id)
+                continue
+
+            if not isinstance(article, dict):
+                logger.warning(f"[FAIL] 결과 형식 오류: keyword_id={keyword_id}, article={article}")
+                await deactivate_keyword(keyword_id)
+                continue
+
+            logger.info(f"[SUCCESS] 수집 완료: keyword_id={keyword_id}, title={article['title']}")
+            result = await send_articles_to_django([article])
+            logger.info(f"[SEND] Django 저장 결과: {result}")
+
+        except Exception as e:
+            logger.error(f"[ERROR] 처리 중 예외 발생: keyword_id={keyword_id}, title={title} - {e}", exc_info=True)
+            await deactivate_keyword(keyword_id)
+            continue

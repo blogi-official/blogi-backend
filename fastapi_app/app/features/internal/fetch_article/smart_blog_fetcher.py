@@ -32,7 +32,7 @@ async def fetch_smart_article(keyword_id: int, title: str) -> Optional[dict]:
         if not origin_link:
             logger.warning(f"[SKIP] origin_link 없음 - item: {result}")
             return None
-        content = await extract_blog_content(origin_link)
+        content = await extract_blog_content(origin_link, title)
         if content:
             return _build_article(keyword_id, result, origin_link, content)
 
@@ -85,7 +85,7 @@ async def try_fallback_search(keyword_id: int, phrase: str) -> Optional[dict]:
         logger.warning(f"[SKIP] origin_link 없음 - phrase: {phrase}")
         return None
 
-    content = await extract_blog_content(origin_link)
+    content = await extract_blog_content(origin_link, phrase)
     if content:
         return _build_article(keyword_id, result, origin_link, content)
     return None
