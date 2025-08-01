@@ -4,7 +4,7 @@ from typing import Dict, Union
 import httpx
 
 from app.common.logger import get_logger
-from app.common.utils.text_utils import clean_encoded_text
+from app.common.utils.text_utils import clean_text
 from app.core.config import settings
 
 logger = get_logger(__name__)
@@ -72,8 +72,8 @@ async def search_news(query: str, type: str = "news", display: int = 3):
                 blogger_link = item.get("bloggerlink", "")
                 postdate = item.get("postdate", "")
 
-                clean_title = clean_encoded_text(raw_title)
-                clean_description = clean_encoded_text(raw_description)
+                clean_title = clean_text(raw_title)
+                clean_description = clean_text(raw_description)
 
                 # raw_link가 http/https로 시작하지 않으면 보정 시도
                 if not raw_link.startswith("http"):

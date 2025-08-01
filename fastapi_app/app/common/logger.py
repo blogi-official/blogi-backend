@@ -13,3 +13,7 @@ def get_logger(name: str) -> logging.Logger:
         console_handler.setFormatter(formatter)
         logger.addHandler(console_handler)
     return logger
+
+
+def setup_logger():
+    get_logger("test")
