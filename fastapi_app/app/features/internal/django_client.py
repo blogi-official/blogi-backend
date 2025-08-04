@@ -1,7 +1,7 @@
 import json
 from typing import Dict, List, Union
 
-from app.common.http_client import get_json, post_json
+from app.common.http_client import get_json, get_raw_json, patch_json, post_json
 from app.common.logger import get_logger
 from app.core.config import settings
 
@@ -10,7 +10,7 @@ logger = get_logger(__name__)
 
 # GET
 async def fetch_keywords_from_django():
-    return await get_json(settings.django_api_endpoint_keywords_get)
+    return await get_raw_json(settings.django_api_endpoint_keywords_get)
 
 
 # POST
@@ -37,3 +37,15 @@ async def send_articles_to_django(
     except Exception as e:
         logger.error(f"[send_articles_to_django] Django API 요청 실패: {e}")
         raise
+
+
+# PATCH
+async def deactivate_keyword(keyword_id: int):
+    try:
+        await patch_json(
+            f"{settings.django_api_url}/api/internal/keywords/{keyword_id}/deactivate/",
+            data={},
+        )
+        logger.info(f"[PATCH] keyword_id={keyword_id} - is_active=False 처리 완료")
+    except Exception as e:
+        logger.error(f"[PATCH FAIL] keyword_id={keyword_id} - 비활성화 실패: {e}")

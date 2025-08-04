@@ -28,6 +28,12 @@ class Settings(BaseSettings):
         description="키워드 수집 완료 처리",
     )
 
+    # 키워드 비활성화처리
+    django_api_endpoint_keyword_deactivate: str = Field(
+        default="/api/internal/keywords/{id}/deactivate/",
+        description="키워드 비활성화 처리 API",
+    )
+
     # 사용자 로그인용 JWT 토큰 검증용 시크릿
     django_secret_key: str = Field(..., description="JWT 서명용 시크릿 키 (Django와 동일)")
     algorithm: str = Field(default="HS256", description="JWT 알고리즘")

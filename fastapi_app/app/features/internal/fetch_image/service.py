@@ -33,6 +33,21 @@ async def fetch_and_save_images() -> list[str]:
         # 3. 저장 조건 확인
         if not image_urls:
             logger.warning(f"[SKIP] keyword_id={keyword_id}, '{title}' 키워드에 대한 이미지 없음")
+
+            # [PATCH] 실패해도 다음 키워드로 넘기기 위해 수집 완료 처리
+            try:
+                logger.info(f"[PATCH] keyword_id={keyword_id} - 이미지 없음 → 수집 완료 처리")
+                await patch_json(
+                    f"{settings.django_api_url}{settings.django_api_endpoint_mark_collected}".replace(
+                        "{id}", str(keyword_id)
+                    ),
+                    data={},
+                )
+                logger.info(f"[PATCH] keyword_id={keyword_id} - 수집 완료 표시 성공 (이미지 없음)")
+            except Exception as e:
+                logger.error(f"[ERROR] keyword_id={keyword_id} - 수집 완료 표시 실패: {e}")
+                raise
+
             return []
 
         # 4. Django 이미지 저장 요청

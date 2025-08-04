@@ -1,7 +1,7 @@
 from app.common.logger import get_logger
 from app.common.utils.text_utils import clean_raw_data
 from app.common.utils.time_utils import parse_collected_at
-from app.features.internal.djnago_client import send_keywords_to_django
+from app.features.internal.django_client import send_keywords_to_django
 from app.features.internal.scrape_titles.naver_scraper import scrape_titles
 
 logger = get_logger(__name__)

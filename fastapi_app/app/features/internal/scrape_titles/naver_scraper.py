@@ -1,12 +1,11 @@
 import asyncio
-import re
 from datetime import datetime, timezone
 
 from playwright.async_api import async_playwright
 
+from app.common.constants.category import CATEGORY_MAP
 from app.common.logger import get_logger
 from app.common.utils.text_utils import clean_text
-from app.features.internal.scrape_titles.config import CATEGORY_MAP
 
 logger = get_logger(__name__)
 

@@ -23,19 +23,22 @@ class KeywordListAPIView(APIView):
 
     def get(self, request: Request) -> Response:
         """
-        키워드 전체 조회 API
+        키워드 조회 API (기사 본문 수집 대상 1건)
         """
-        try:
-            keywords = Keyword.objects.order_by("-created_at")
-        except Keyword.DoesNotExist:
+        keyword = (
+            Keyword.objects.filter(is_active=True, is_collected=False, article__isnull=True)
+            .order_by("created_at")
+            .first()
+        )
+        if not keyword:
             return Response(
                 {"detail": "키워드가 존재하지 않습니다."},
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        serializer = self.serializer_class(keywords, many=True)
+        serializer = self.serializer_class(keyword)
         return Response(
-            {"message": "키워드 목록 조회 완료", "data": serializer.data},
+            {"message": "키워드 조회 완료", "data": serializer.data},
             status=status.HTTP_200_OK,
         )
 

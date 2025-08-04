@@ -11,6 +11,7 @@ from apps.internal.views.fetch_aritcle_views import (
     ArticleCreateAPIView,
     KeywordListAPIView,
 )
+from apps.internal.views.keyword import KeywordDeactivateAPIView
 from apps.internal.views.scrap_titles_views import KeywordCreateAPIView
 from apps.internal.views.scrape_images_views import (
     ImageSaveAPIView,
@@ -31,6 +32,11 @@ urlpatterns = [
         "keywords/<int:id>/collected/",
         KeywordMarkCollectedAPIView.as_view(),
         name="internal-keywords-mark-collected",
+    ),
+    path(
+        "keywords/<int:id>/deactivate/",
+        KeywordDeactivateAPIView.as_view(),
+        name="keyword-deactivate",
     ),
     # 키워드 생성: FastAPI가 네이버 등에서 수집한 키워드를 Django에 저장할 때 사용 (POST)
     path("posts/", KeywordCreateAPIView.as_view(), name="keyword-create"),
