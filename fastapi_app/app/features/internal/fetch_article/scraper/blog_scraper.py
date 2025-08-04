@@ -41,7 +41,7 @@ async def extract_blog_content(url: str, keyword: str) -> str | None:
             selectors = (
                 [raw_selector]
                 if isinstance(raw_selector, str)
-                else raw_selector if isinstance(raw_selector, list) else BLOG_DEFAULT_SELECTORS
+                else (raw_selector if isinstance(raw_selector, list) else BLOG_DEFAULT_SELECTORS)
             )
 
             for selector in selectors:

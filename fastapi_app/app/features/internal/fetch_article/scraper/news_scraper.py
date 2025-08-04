@@ -3,7 +3,9 @@ from urllib.parse import urlparse
 from playwright.async_api import async_playwright
 
 from app.common.logger import get_logger
-from app.features.internal.fetch_article.filtering import is_valid_blog_content  # 필터 추가
+from app.features.internal.fetch_article.filtering import (  # 필터 추가
+    is_valid_blog_content,
+)
 from app.features.internal.fetch_article.scraper.playwright_browser import get_browser
 from app.features.internal.fetch_article.scraper.playwright_selectors import (
     DEFAULT_SELECTORS,

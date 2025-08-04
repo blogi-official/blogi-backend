@@ -68,6 +68,9 @@ async def scrape_and_send_articles():
             logger.info(f"[SEND] Django 저장 결과: {result}")
 
         except Exception as e:
-            logger.error(f"[ERROR] 처리 중 예외 발생: keyword_id={keyword_id}, title={title} - {e}", exc_info=True)
+            logger.error(
+                f"[ERROR] 처리 중 예외 발생: keyword_id={keyword_id}, title={title} - {e}",
+                exc_info=True,
+            )
             await deactivate_keyword(keyword_id)
             continue

@@ -34,7 +34,11 @@ def filter_valid_http_urls(image_urls: List[str]) -> List[HttpUrl]:
         return valid_urls
 
 
-@router.get("/fetch/image", response_model=ImageFetchResponse, tags=["[Internal] 대표 이미지 수집"])
+@router.get(
+    "/fetch/image",
+    response_model=ImageFetchResponse,
+    tags=["[Internal] 대표 이미지 수집"],
+)
 async def fetch_image_handler(x_internal_secret: str = Security(api_key_header)):
     if x_internal_secret != settings.internal_secret_key:
         raise HTTPException(status_code=403, detail="Invalid internal secret")

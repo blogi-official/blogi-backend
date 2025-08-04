@@ -33,7 +33,10 @@ async def run_test():
             "app.features.internal.fetch_article.services.fetch_keywords_from_django",
             new=mock_fetch_keywords_from_django,
         ),
-        patch("app.features.internal.fetch_article.services.fetch_smart_article", new=mock_fetch_smart_article),
+        patch(
+            "app.features.internal.fetch_article.services.fetch_smart_article",
+            new=mock_fetch_smart_article,
+        ),
     ):
         result = await scrape_and_send_articles()
 

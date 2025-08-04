@@ -26,8 +26,7 @@ class KeywordListAPIView(APIView):
         키워드 조회 API (기사 본문 수집 대상 1건)
         """
         keyword = (
-            Keyword.objects
-            .filter(is_active=True, is_collected=False, article__isnull=True)
+            Keyword.objects.filter(is_active=True, is_collected=False, article__isnull=True)
             .order_by("created_at")
             .first()
         )
