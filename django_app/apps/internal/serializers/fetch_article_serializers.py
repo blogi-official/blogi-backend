@@ -23,17 +23,19 @@ class ScrapedArticleListSerializer(serializers.ListSerializer):
 
         for item in validated_data:
             keyword = item.pop("keyword_id")
+
+            # 이미 기사 존재하면 스킵
             if Article.objects.filter(keyword=keyword).exists():
                 logger.info(f"이미 수집된 키워드입니다. 저장 스킵: {keyword.id}")
                 skipped_count += 1
                 continue
+
+            # 기사 생성만 수행
             article = Article.objects.create(keyword=keyword, **item)
-            keyword.is_collected = True
-            keyword.save()
             created_count += 1
             articles.append(article)
 
-        # 시리얼라이저 인스턴스에 카운트 저장
+        # 생성/스킵 카운트 저장
         self.created_count = created_count
         self.skipped_count = skipped_count
 
