@@ -43,22 +43,22 @@ class InternalArticleDetailAPIView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, keyword_id: int):
-        # 내부 인증
         secret = request.headers.get("X-Internal-Secret")
         if secret != INTERNAL_SECRET:
             return Response({"detail": "내부 인증 실패"}, status=status.HTTP_401_UNAUTHORIZED)
 
-        # 안전한 404 JSON 처리
         try:
             article = Article.objects.get(keyword_id=keyword_id)
         except Article.DoesNotExist:
             return JsonResponse({"detail": "해당 키워드의 기사 정보가 없습니다."}, status=404)
 
+        keyword = article.keyword  #  keyword.title을 쓰기 위해 필요
+
         images = Image.objects.filter(keyword_id=keyword_id).order_by("order")[:3]
         image_urls = [img.image_url for img in images]
 
         data = {
-            "title": article.title,
+            "title": keyword.title,  #  keyword 제목 사용
             "content": article.content,
             "image_urls": image_urls,
         }

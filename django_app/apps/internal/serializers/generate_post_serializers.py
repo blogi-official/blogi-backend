@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 # 기사+이미지 조회 005
 class ArticleWithImagesSerializer(serializers.Serializer):
-    title = serializers.CharField()
+    keyword_title = serializers.CharField(source="title")
     content = serializers.CharField()
     image_urls = serializers.ListField(child=serializers.URLField(), max_length=3)
 
