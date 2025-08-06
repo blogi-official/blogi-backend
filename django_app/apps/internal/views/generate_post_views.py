@@ -20,6 +20,7 @@ from config.settings import INTERNAL_SECRET
 
 logger = logging.getLogger(__name__)
 
+
 @extend_schema(
     tags=["[Internal] FastAPI ↔ Django - 콘텐츠 동기화"],
     summary="기사 + 이미지 통합 조회",
@@ -45,17 +46,16 @@ logger = logging.getLogger(__name__)
 class InternalArticleDetailAPIView(APIView):
     permission_classes = [AllowAny]
 
-
     def get(self, request, keyword_id: int):
         secret = request.headers.get("X-Internal-Secret")
         if secret != INTERNAL_SECRET:
             return Response({"detail": "내부 인증 실패"}, status=status.HTTP_401_UNAUTHORIZED)
 
-        keyword = Keyword.objects.select_related('article').get(id=keyword_id)
+        keyword = Keyword.objects.select_related("article").get(id=keyword_id)
         if not keyword:
             return JsonResponse({"detail": "해당 키워드는 존재하지 않습니다."}, status=404)
 
-        article = getattr(keyword, 'article', None)
+        article = getattr(keyword, "article", None)
         if not article:
             return JsonResponse({"detail": "해당 키워드의 기사 본문이 없습니다."}, status=404)
 
