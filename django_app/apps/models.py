@@ -89,7 +89,7 @@ class Keyword(models.Model):
 
 
 class Article(models.Model):
-    keyword = models.OneToOneField(Keyword, on_delete=models.CASCADE)
+    keyword = models.OneToOneField(Keyword, on_delete=models.CASCADE, related_name="article")
     title = models.CharField(max_length=255)
     content = models.TextField()
     origin_link = models.CharField(max_length=1000)
@@ -105,7 +105,7 @@ class Article(models.Model):
 
 class GeneratedPost(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    keyword = models.OneToOneField(Keyword, on_delete=models.CASCADE)
+    keyword = models.ForeignKey(Keyword, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     content = models.TextField()
     image_1_url = models.CharField(max_length=1000, null=True, blank=True)
@@ -119,6 +119,7 @@ class GeneratedPost(models.Model):
         db_table = "generated_post"
         verbose_name = "생성된 글"
         verbose_name_plural = "생성된 글 목록"
+        constraints = [models.UniqueConstraint(fields=["user", "keyword"], name="unique_post_per_user_keyword")]
 
     def __str__(self) -> str:
         return self.title

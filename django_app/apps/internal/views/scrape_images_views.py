@@ -29,7 +29,10 @@ class KeywordNextImageTargetAPIView(APIView):
     serializer_class = KeywordImageTargetSerializer
 
     def get(self, request):
-        keyword = Keyword.objects.filter(is_collected=False, article__isnull=False).order_by("created_at").first()
+        # article이 연결된 keyword_id만 필터링해서 쿼리
+        article_keyword_ids = Article.objects.values_list("keyword_id", flat=True)
+
+        keyword = Keyword.objects.filter(is_collected=False, id__in=article_keyword_ids).order_by("created_at").first()
 
         if not keyword:
             return Response(

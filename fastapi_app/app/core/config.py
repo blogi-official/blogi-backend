@@ -34,6 +34,32 @@ class Settings(BaseSettings):
         description="키워드 비활성화 처리 API",
     )
 
+    # Clova 콘텐츠 생성 처리 관련 Endpoints
+    django_api_endpoint_article_detail: str = Field(
+        default="/api/internal/posts/article-with-images/",
+        description="기사+이미지 통합 조회 (keyword_id 기반)",
+    )
+
+    django_api_endpoint_generated_post: str = Field(
+        default="/api/internal/posts/",
+        description="Clova 생성 결과 저장",
+    )
+
+    django_api_endpoint_clova_log_success: str = Field(
+        default="/api/internal/clova-log/success/",
+        description="Clova 생성 성공 로그 저장",
+    )
+
+    django_api_endpoint_clova_log_fail: str = Field(
+        default="/api/internal/clova-log/fail/",
+        description="Clova 생성 실패 로그 저장",
+    )
+
+    django_api_endpoint_generated_post_preview: str = Field(
+        default="/api/internal/generated-posts/preview",
+        description="Clova 생성 결과 미리보기 (기존 결과 반환)",
+    )
+
     # 사용자 로그인용 JWT 토큰 검증용 시크릿
     django_secret_key: str = Field(..., description="JWT 서명용 시크릿 키 (Django와 동일)")
     algorithm: str = Field(default="HS256", description="JWT 알고리즘")
@@ -44,6 +70,15 @@ class Settings(BaseSettings):
     # NAVER
     naver_client_id: str = Field(..., description="네이버 클라이언트 아이디")
     naver_client_secret: str = Field(..., description="네이버 클라이언트 시크릿 키")
+
+    # TODO: Clova Studio 연동 시 아래 항목들 활성화 및 .env 설정 필요
+    """
+    clova_api_url: str = Field(..., env="CLOVA_API_URL")
+    clova_api_key: str = Field(..., env="CLOVA_API_KEY")
+    clova_api_secret: str = Field(default="", env="CLOVA_API_SECRET")  # optional
+    clova_deployment_name: str = Field(..., env="CLOVA_DEPLOYMENT_NAME")
+    clova_system_prompt: str = Field(default="", env="CLOVA_SYSTEM_PROMPT")
+    """
 
     timezone: str = Field(default="Asia/Seoul", description="애플리케이션 기본 타임존")
 

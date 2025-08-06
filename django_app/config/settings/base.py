@@ -237,6 +237,11 @@ NAVER_CLIENT_ID = os.getenv("NAVER_CLIENT_ID")
 NAVER_SECRET = os.getenv("NAVER_SECRET")
 NAVER_REDIRECT_URI = os.getenv("NAVER_REDIRECT_URI")
 
+# Internal API 인증용 시크릿키
+INTERNAL_SECRET = os.getenv("INTERNAL_SECRET")
+if not INTERNAL_SECRET:
+    raise ValueError("INTERNAL_SECRET must be set for FastAPI internal authentication")
+
 # User model
 AUTH_USER_MODEL = "apps.User"
 

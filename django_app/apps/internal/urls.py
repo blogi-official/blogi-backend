@@ -11,6 +11,13 @@ from apps.internal.views.fetch_aritcle_views import (
     ArticleCreateAPIView,
     KeywordListAPIView,
 )
+from apps.internal.views.generate_post_views import (
+    ClovaFailLogCreateAPIView,
+    ClovaSuccessLogCreateAPIView,
+    GeneratedPostPreviewAPIView,
+    InternalArticleDetailAPIView,
+    InternalGeneratedPostCreateAPIView,
+)
 from apps.internal.views.keyword import KeywordDeactivateAPIView
 from apps.internal.views.scrap_titles_views import KeywordCreateAPIView
 from apps.internal.views.scrape_images_views import (
@@ -44,4 +51,13 @@ urlpatterns = [
     path("keywords/", KeywordListAPIView.as_view(), name="keyword-list"),
     # 기사 본문 생성: FastAPI가 수집한 기사 본문 데이터를 Django에 저장할 때 사용 (POST)
     path("article/create/", ArticleCreateAPIView.as_view(), name="article-create"),
+    # 기사 본문 , 이미지 조회 (GET) 005
+    path("articles/<int:keyword_id>/", InternalArticleDetailAPIView.as_view(), name="internal-article-detail"),
+    # Clova 생성 결과 저장 (POST) 007
+    path("generated-posts/", InternalGeneratedPostCreateAPIView.as_view(), name="internal-post-create"),
+    # Clova 생성 성공/실패 로그 생성 (POST) 006
+    path("clova-log/success/", ClovaSuccessLogCreateAPIView.as_view(), name="internal-clova-log-success"),
+    path("clova-log/fail/", ClovaFailLogCreateAPIView.as_view(), name="internal-clova-log-fail"),
+    # Clova 생성 중복 프리뷰 반환
+    path("generated-posts/preview/", GeneratedPostPreviewAPIView.as_view(), name="generated-post-preview"),
 ]

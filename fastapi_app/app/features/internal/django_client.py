@@ -3,6 +3,7 @@ from typing import Dict, List, Union
 
 from app.common.http_client import get_json, get_raw_json, patch_json, post_json
 from app.common.logger import get_logger
+from app.common.utils.url_utils import join_url
 from app.core.config import settings
 
 logger = get_logger(__name__)
@@ -39,13 +40,45 @@ async def send_articles_to_django(
         raise
 
 
-# PATCH
+# 기사 + 이미지 통합 조회
+async def fetch_article_with_images(keyword_id: int):
+    url = join_url(settings.django_api_url, settings.django_api_endpoint_article_detail, str(keyword_id))
+    return await get_raw_json(url)
+
+
+# Clova 생성 결과 저장
+async def send_generated_post_to_django(post_data: dict):
+    url = join_url(settings.django_api_url, settings.django_api_endpoint_generated_post)
+    return await post_json(url, post_data)
+
+
+# Clova 성공 로그 저장
+async def log_clova_success_to_django(log_data: dict):
+    url = join_url(settings.django_api_url, settings.django_api_endpoint_clova_log_success)
+    return await post_json(url, log_data)
+
+
+# Clova 실패 로그 저장
+async def log_clova_failure_to_django(log_data: dict):
+    url = join_url(settings.django_api_url, settings.django_api_endpoint_clova_log_fail)
+    return await post_json(url, log_data)
+
+
+# 키워드 비활성화 처리 (PATCH)
 async def deactivate_keyword(keyword_id: int):
     try:
-        await patch_json(
-            f"{settings.django_api_url}/api/internal/keywords/{keyword_id}/deactivate/",
-            data={},
-        )
+        url = join_url(settings.django_api_url, settings.django_api_endpoint_keyword_deactivate.format(id=keyword_id))
+        await patch_json(url, data={})
         logger.info(f"[PATCH] keyword_id={keyword_id} - is_active=False 처리 완료")
     except Exception as e:
         logger.error(f"[PATCH FAIL] keyword_id={keyword_id} - 비활성화 실패: {e}")
+
+
+# 생성된 글 미리보기 요청 (존재 시 응답)
+async def fetch_generated_post_preview(keyword_id: int, user_id: int):
+    url = join_url(
+        settings.django_api_url,
+        settings.django_api_endpoint_generated_post_preview,
+    )
+    payload = {"keyword_id": keyword_id, "user_id": user_id}
+    return await post_json(url, payload)
