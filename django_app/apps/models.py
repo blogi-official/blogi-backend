@@ -89,7 +89,7 @@ class Keyword(models.Model):
 
 
 class Article(models.Model):
-    keyword = models.OneToOneField(Keyword, on_delete=models.CASCADE)
+    keyword = models.OneToOneField(Keyword, on_delete=models.CASCADE, related_name="article")
     title = models.CharField(max_length=255)
     content = models.TextField()
     origin_link = models.CharField(max_length=1000)

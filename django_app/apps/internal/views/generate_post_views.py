@@ -1,3 +1,5 @@
+import logging
+
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
@@ -16,6 +18,7 @@ from apps.internal.serializers.generate_post_serializers import (
 from apps.models import Article, ClovaStudioLog, GeneratedPost, Image, Keyword, User
 from config.settings import INTERNAL_SECRET
 
+logger = logging.getLogger(__name__)
 
 @extend_schema(
     tags=["[Internal] FastAPI ↔ Django - 콘텐츠 동기화"],
@@ -42,23 +45,28 @@ from config.settings import INTERNAL_SECRET
 class InternalArticleDetailAPIView(APIView):
     permission_classes = [AllowAny]
 
+
     def get(self, request, keyword_id: int):
         secret = request.headers.get("X-Internal-Secret")
         if secret != INTERNAL_SECRET:
             return Response({"detail": "내부 인증 실패"}, status=status.HTTP_401_UNAUTHORIZED)
 
-        try:
-            article = Article.objects.get(keyword_id=keyword_id)
-        except Article.DoesNotExist:
-            return JsonResponse({"detail": "해당 키워드의 기사 정보가 없습니다."}, status=404)
+        keyword = Keyword.objects.select_related('article').get(id=keyword_id)
+        if not keyword:
+            return JsonResponse({"detail": "해당 키워드는 존재하지 않습니다."}, status=404)
 
-        keyword = article.keyword  #  keyword.title을 쓰기 위해 필요
+        article = getattr(keyword, 'article', None)
+        if not article:
+            return JsonResponse({"detail": "해당 키워드의 기사 본문이 없습니다."}, status=404)
 
         images = Image.objects.filter(keyword_id=keyword_id).order_by("order")[:3]
         image_urls = [img.image_url for img in images]
 
+        if not image_urls:
+            logger.warning(f"Keyword id={keyword.id}에 이미지가 없습니다.")
+
         data = {
-            "title": keyword.title,  #  keyword 제목 사용
+            "title": keyword.title,
             "content": article.content,
             "image_urls": image_urls,
         }
