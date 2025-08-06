@@ -71,14 +71,27 @@ class Settings(BaseSettings):
     naver_client_id: str = Field(..., description="네이버 클라이언트 아이디")
     naver_client_secret: str = Field(..., description="네이버 클라이언트 시크릿 키")
 
-    # TODO: Clova Studio 연동 시 아래 항목들 활성화 및 .env 설정 필요
-    """
-    clova_api_url: str = Field(..., env="CLOVA_API_URL")
-    clova_api_key: str = Field(..., env="CLOVA_API_KEY")
-    clova_api_secret: str = Field(default="", env="CLOVA_API_SECRET")  # optional
-    clova_deployment_name: str = Field(..., env="CLOVA_DEPLOYMENT_NAME")
-    clova_system_prompt: str = Field(default="", env="CLOVA_SYSTEM_PROMPT")
-    """
+    # Clova 연동
+    # Clova Studio API 키 (모든 API 호출에 사용됨)
+    clova_api_key: str = Field(..., description="CLOVA Studio API 키")
+
+    # Clova Studio의 OpenAI 호환 API Base URL
+    openai_base_url: str = Field(..., description="OpenAI 호환 API base URL (e.g. /v1/openai)")
+
+    # Clova Studio REST API Base URL (튜닝 등)
+    clova_base_url: str = Field(..., description="Clova Studio REST API base URL (튜닝용)")
+
+    # Object Storage 버킷 이름
+    clova_bucket_name: str = Field(..., description="Clova 튜닝 데이터용 Object Storage 버킷 이름")
+
+    # 튜닝용 학습 데이터 경로 (예: tuning/2025-08/blogi_train.csv)
+    clova_data_path: str = Field(..., description="Object Storage 내 학습 데이터 경로")
+
+    # Object Storage 접근을 위한 Access Key
+    clova_storage_access_key: str = Field(..., description="Object Storage 접근용 Access Key")
+
+    # Object Storage 접근을 위한 Secret Key
+    clova_storage_secret_key: str = Field(..., description="Object Storage 접근용 Secret Key")
 
     timezone: str = Field(default="Asia/Seoul", description="애플리케이션 기본 타임존")
 
