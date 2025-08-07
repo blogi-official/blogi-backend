@@ -23,7 +23,8 @@ dependencies = [
     "beautifulsoup4 (>=4.13.4,<5.0.0)",
     "display (>=1.0.0,<2.0.0)",
     "konlpy (>=0.6.0,<0.7.0)",
-    "jpype1 (>=1.6.0,<2.0.0)"
+    "jpype1 (>=1.6.0,<2.0.0)",
+    "requests (>=2.32.4,<3.0.0)"
 ]
 
 
@@ -36,6 +37,7 @@ black = "^25.1.0"
 isort = "^6.0.1"
 mypy = "^1.17.0"
 types-python-dateutil = "^2.9.0.20250708"
+types-requests = "^2.32.4.20250611"
 
 [tool.black]
 line-length = 120
@@ -44,10 +46,9 @@ line-length = 120
 profile = "black"
 
 [tool.mypy]
-python_version = 3.12
+files = ["fastapi_app/"]
+python_version = "3.12"
 ignore_missing_imports = true
 explicit_package_bases = true
-
-
 
 
