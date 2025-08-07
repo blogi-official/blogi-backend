@@ -93,6 +93,15 @@ class Settings(BaseSettings):
     # Object Storage 접근을 위한 Secret Key
     clova_storage_secret_key: str = Field(..., description="Object Storage 접근용 Secret Key")
 
+    # Clova 튜닝 Task ID (모델 ID)
+    clova_tuned_model_id: str = Field(..., description="CLOVA 튜닝 Task ID (v3/tasks/<ID>)")
+
+    # Clova System Prompt (튜닝 모델 프롬프트)
+    clova_system_prompt: str = Field(..., description="Clova Studio system prompt (튜닝된 모델 역할)")
+
+    # FastAPI 프록시 주소 (이미지 프록시용)
+    fastapi_origin: str = Field(..., description="이미지 프록시 요청을 위한 FastAPI 서버 주소 (도메인 또는 포트 포함)")
+
     timezone: str = Field(default="Asia/Seoul", description="애플리케이션 기본 타임존")
 
     model_config = SettingsConfigDict(
