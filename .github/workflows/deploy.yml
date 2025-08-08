@@ -1,0 +1,43 @@
+name: Development Server Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy_to_ncp:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Deploy to NCP Server via SSH
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.NCP_HOST }}
+          username: ${{ secrets.NCP_USER }}
+          key: ${{ secrets.NCP_SSH_KEY }}
+          script: |
+            # 1. 프로젝트 디렉토리로 이동
+            # 프로젝트 구조에 따라 cd [프로젝트 디렉토리명]으로 변경
+            cd /root/blogi-backend
+            
+            # 2. Git 최신 코드 받기
+            git pull origin main
+
+            # 3. .env 파일 생성 또는 업데이트
+            # GitHub Secrets에 env 파일 내용을 저장하고, 이를 서버의 .env 파일로 생성
+            # Django 앱용 .env 파일 생성
+            echo "${{ secrets.NCP_DJANGO_ENVS }}" > django_app/envs/.local.env
+            
+            # FastAPI 앱용 .env 파일 생성
+            echo "${{ secrets.NCP_FASTAPI_ENVS }}" > fastapi_app/envs/.local.env
+            
+            # 4. Docker Compose로 컨테이너 재배포
+            # 기존 컨테이너를 중지하고 새로운 이미지로 재빌드 후 실행
+            docker-compose -f docker-compose.local.yml down
+            docker-compose -f docker-compose.local.yml up --build -d
+            
+            # 5. 불필요한 이미지 정리
+            docker image prune -af
