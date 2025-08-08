@@ -100,7 +100,10 @@ class Settings(BaseSettings):
     clova_system_prompt: str = Field(..., description="Clova Studio system prompt (튜닝된 모델 역할)")
 
     # FastAPI 프록시 주소 (이미지 프록시용)
-    fastapi_origin: str = Field(..., description="이미지 프록시 요청을 위한 FastAPI 서버 주소 (도메인 또는 포트 포함)")
+    fastapi_origin: str = Field(
+        ...,
+        description="이미지 프록시 요청을 위한 FastAPI 서버 주소 (도메인 또는 포트 포함)",
+    )
 
     timezone: str = Field(default="Asia/Seoul", description="애플리케이션 기본 타임존")
 

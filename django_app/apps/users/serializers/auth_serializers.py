@@ -66,7 +66,7 @@ class KakaoLoginSerializer(serializers.Serializer):
                 "nickname": user.nickname,
                 "provider": user.provider,
                 "is_onboarded": user.userinterest_set.exists(),
-            }
+            },
         }
 
     def create(self, validated_data):
@@ -134,7 +134,6 @@ class NaverLoginSerializer(serializers.Serializer):
                 "email": user.email,
                 "nickname": user.nickname,
                 "provider": user.provider,
-                 "is_onboarded": user.userinterest_set.exists(),
-            }
+                "is_onboarded": user.userinterest_set.exists(),
+            },
         }
-

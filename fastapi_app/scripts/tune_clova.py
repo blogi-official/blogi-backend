@@ -65,7 +65,10 @@ if __name__ == "__main__":
     print(f"📂 Dataset: {CLOVA_BUCKET_NAME}/{CLOVA_DATA_PATH}")
 
     completion_executor = CreateTaskExecutor(
-        host=CLOVA_BASE_URL, uri="/tuning/v2/tasks", api_key=f"Bearer {CLOVA_API_KEY}", request_id=CLOVA_REQUEST_ID
+        host=CLOVA_BASE_URL,
+        uri="/tuning/v2/tasks",
+        api_key=f"Bearer {CLOVA_API_KEY}",
+        request_id=CLOVA_REQUEST_ID,
     )
 
     request_data = {

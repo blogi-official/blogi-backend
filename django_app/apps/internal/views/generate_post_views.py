@@ -99,7 +99,10 @@ class InternalGeneratedPostCreateAPIView(APIView):
 
         serializer = InternalGeneratedPostCreateSerializer(data=request.data)
         if not serializer.is_valid():
-            return Response({"detail": "필수 필드 누락 또는 잘못된 형식입니다."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"detail": "필수 필드 누락 또는 잘못된 형식입니다."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         data = serializer.validated_data
         keyword = get_object_or_404(Keyword, id=data["keyword_id"])
@@ -116,7 +119,10 @@ class InternalGeneratedPostCreateAPIView(APIView):
             created_at=now(),
         )
 
-        return Response({"post_id": post.id, "created_at": post.created_at.isoformat()}, status=status.HTTP_201_CREATED)
+        return Response(
+            {"post_id": post.id, "created_at": post.created_at.isoformat()},
+            status=status.HTTP_201_CREATED,
+        )
 
 
 @extend_schema(
@@ -125,7 +131,11 @@ class InternalGeneratedPostCreateAPIView(APIView):
     description="FastAPI가 Clova Studio 생성에 성공한 경우, Django에 성공 로그를 저장합니다.",
     request=ClovaSuccessLogSerializer,
     responses={
-        201: OpenApiExample("성공 로그 저장 예시", value={"log_id": 555, "status": "success"}, response_only=True)
+        201: OpenApiExample(
+            "성공 로그 저장 예시",
+            value={"log_id": 555, "status": "success"},
+            response_only=True,
+        )
     },
 )
 # Clova 성공 로그 저장 006
@@ -159,7 +169,13 @@ class ClovaSuccessLogCreateAPIView(APIView):
     summary="Clova 실패 로그 저장",
     description="FastAPI가 Clova Studio 생성에 실패한 경우, Django에 실패 로그를 저장합니다.",
     request=ClovaFailLogSerializer,
-    responses={201: OpenApiExample("실패 로그 저장 예시", value={"log_id": 999, "status": "fail"}, response_only=True)},
+    responses={
+        201: OpenApiExample(
+            "실패 로그 저장 예시",
+            value={"log_id": 999, "status": "fail"},
+            response_only=True,
+        )
+    },
 )
 # Clova 실패 로그 저장
 class ClovaFailLogCreateAPIView(APIView):
@@ -201,10 +217,18 @@ class ClovaFailLogCreateAPIView(APIView):
     ),
     parameters=[
         OpenApiParameter(
-            name="user_id", type=int, required=True, location=OpenApiParameter.QUERY, description="유저 ID"
+            name="user_id",
+            type=int,
+            required=True,
+            location=OpenApiParameter.QUERY,
+            description="유저 ID",
         ),
         OpenApiParameter(
-            name="keyword_id", type=int, required=True, location=OpenApiParameter.QUERY, description="키워드 ID"
+            name="keyword_id",
+            type=int,
+            required=True,
+            location=OpenApiParameter.QUERY,
+            description="키워드 ID",
         ),
     ],
     responses={

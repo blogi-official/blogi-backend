@@ -42,7 +42,11 @@ async def send_articles_to_django(
 
 # 기사 + 이미지 통합 조회
 async def fetch_article_with_images(keyword_id: int):
-    url = join_url(settings.django_api_url, settings.django_api_endpoint_article_detail, str(keyword_id))
+    url = join_url(
+        settings.django_api_url,
+        settings.django_api_endpoint_article_detail,
+        str(keyword_id),
+    )
     return await get_raw_json(url)
 
 
@@ -67,7 +71,10 @@ async def log_clova_failure_to_django(log_data: dict):
 # 키워드 비활성화 처리 (PATCH)
 async def deactivate_keyword(keyword_id: int):
     try:
-        url = join_url(settings.django_api_url, settings.django_api_endpoint_keyword_deactivate.format(id=keyword_id))
+        url = join_url(
+            settings.django_api_url,
+            settings.django_api_endpoint_keyword_deactivate.format(id=keyword_id),
+        )
         await patch_json(url, data={})
         logger.info(f"[PATCH] keyword_id={keyword_id} - is_active=False 처리 완료")
     except Exception as e:

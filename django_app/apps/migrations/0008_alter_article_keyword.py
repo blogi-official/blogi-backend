@@ -15,7 +15,9 @@ class Migration(migrations.Migration):
             model_name="article",
             name="keyword",
             field=models.OneToOneField(
-                on_delete=django.db.models.deletion.CASCADE, related_name="article", to="apps.keyword"
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="article",
+                to="apps.keyword",
             ),
         ),
     ]

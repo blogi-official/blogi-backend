@@ -16,7 +16,9 @@ from app.features.internal.generate_clova_post.schema import (
 logger = get_logger(__name__)
 
 
-async def process_clova_generation(payload: GenerateClovaPostRequest) -> GenerateClovaPostResponse:
+async def process_clova_generation(
+    payload: GenerateClovaPostRequest,
+) -> GenerateClovaPostResponse:
     """
     Clova 콘텐츠 생성 전체 프로세스
     1. 이미 생성된 글이 있으면 리턴

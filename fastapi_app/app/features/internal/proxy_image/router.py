@@ -16,7 +16,8 @@ async def proxy_image(url: str = Query(..., description="이미지 원본 URL"))
             response.raise_for_status()
             print(f"[proxy_image] 응답 성공: {response.status_code}")
             return StreamingResponse(
-                response.aiter_bytes(), media_type=response.headers.get("Content-Type", "image/jpeg")
+                response.aiter_bytes(),
+                media_type=response.headers.get("Content-Type", "image/jpeg"),
             )
     except Exception as e:
         print(f"[proxy_image] 요청 실패: {e}")
