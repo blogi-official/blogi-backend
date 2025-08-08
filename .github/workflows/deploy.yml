@@ -17,7 +17,7 @@ jobs:
         with:
           host: ${{ secrets.NCP_HOST }}
           username: ${{ secrets.NCP_USER }}
-          key: ${{ secrets.NCP_SSH_KEY }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             # 1. 프로젝트 디렉토리로 이동
             # 프로젝트 구조에 따라 cd [프로젝트 디렉토리명]으로 변경
