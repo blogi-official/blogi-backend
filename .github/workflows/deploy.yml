@@ -3,7 +3,7 @@ name: Development Server Deployment
 on:
   push:
     branches:
-      - main
+      - develop
 
 jobs:
   deploy_to_ncp:
@@ -24,7 +24,7 @@ jobs:
             cd /root/blogi-backend
             
             # 2. Git 최신 코드 받기
-            git pull origin main
+            git pull origin develop
 
             # 3. .env 파일 생성 또는 업데이트
             # GitHub Secrets에 env 파일 내용을 저장하고, 이를 서버의 .env 파일로 생성
