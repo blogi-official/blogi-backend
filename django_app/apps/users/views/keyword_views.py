@@ -1,7 +1,8 @@
+from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_schema
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -10,6 +11,9 @@ from apps.models import Keyword, KeywordClickLog, User
 from apps.users.serializers.keyword_serializers import KeywordListSerializer
 from apps.utils.paginations import CustomPageNumberPagination
 from apps.utils.permissions import IsUser
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
 @extend_schema(
@@ -49,27 +53,37 @@ from apps.utils.permissions import IsUser
         401: OpenApiResponse(description="인증 필요"),
     },
 )
+
 class KeywordListAPIView(APIView):
-    permission_classes = [IsUser]
+    permission_classes = [AllowAny]
     serializer_class = KeywordListSerializer
 
     def get(self, request: Request) -> Response:
         user = request.user
-        assert isinstance(user, User)
-        user_categories = user.userinterest_set.values_list("category", flat=True)
-
         qs = Keyword.objects.filter(is_active=True, is_collected=True)
+        sort = request.query_params.get("sort", "latest")
 
-        # 관심사 우선 정렬
-        keyword_queryset = list(qs.filter(category__in=user_categories).order_by("-collected_at")) + list(
-            qs.exclude(category__in=user_categories).order_by("-collected_at")
-        )
+        if user.is_authenticated:
+            user_categories = user.userinterest_set.values_list("category", flat=True)
+
+            if sort == "popular":
+                qs = qs.annotate(clicks=Count("keywordclicklog")).order_by("-clicks", "-collected_at")
+                keyword_queryset = qs
+            else:
+                keyword_queryset = list(qs.filter(category__in=user_categories).order_by("-collected_at")) + list(
+                    qs.exclude(category__in=user_categories).order_by("-collected_at")
+                )
+        else:
+            # 비로그인 유저: 최신순만 보여줌
+            keyword_queryset = qs.order_by("-collected_at")
 
         paginator = CustomPageNumberPagination()
-        paginated_qs = paginator.paginate_queryset(keyword_queryset, request)  # type: ignore[arg-type]
+        paginated_qs = paginator.paginate_queryset(keyword_queryset, request)
         serializer = KeywordListSerializer(paginated_qs, many=True)
 
         return paginator.get_paginated_response(serializer.data)
+
+
 
 
 @extend_schema(

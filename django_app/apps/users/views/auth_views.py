@@ -20,8 +20,20 @@ from apps.users.serializers.auth_serializers import (
 class KakaoCallbackView(APIView):
     permission_classes = [AllowAny]
 
+    def post(self, request):
+        code = request.data.get("code")
+        if not code:
+            return Response({"detail": "인가 코드가 없습니다."}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = KakaoLoginSerializer(data={"code": code})
+        serializer.is_valid(raise_exception=True)
+        token_response = serializer.save()
+
+        return Response(token_response, status=status.HTTP_200_OK)
+
     def get(self, request):
         code = request.GET.get("code")
+        print(f"[DEBUG] 콜백 코드: {code}")
         if not code:
             return Response({"detail": "인가 코드가 없습니다."}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -35,6 +47,22 @@ class KakaoCallbackView(APIView):
 
 class NaverCallbackView(APIView):
     permission_classes = [AllowAny]
+
+    def post(self, request):
+        code = request.data.get("code")
+        state = request.data.get("state")
+
+        if not code or not state:
+            return Response(
+                {"detail": "code 또는 state가 누락되었습니다."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        serializer = NaverLoginSerializer(data={"code": code, "state": state})
+        serializer.is_valid(raise_exception=True)
+        token_response = serializer.save()
+
+        return Response(token_response, status=status.HTTP_200_OK)
 
     def get(self, request):
         code = request.GET.get("code")
