@@ -16,7 +16,10 @@ async def fetch_and_save_images() -> list[str]:
     try:
         # 1. 수집 대상 keyword 조회
         keyword_data = await get_raw_json(
-            join_url(settings.django_api_url, settings.django_api_endpoint_keyword_image_target)
+            join_url(
+                settings.django_api_url,
+                settings.django_api_endpoint_keyword_image_target,
+            )
         )
 
         if not keyword_data or "id" not in keyword_data or "title" not in keyword_data:
@@ -48,7 +51,10 @@ async def fetch_and_save_images() -> list[str]:
                 )
                 logger.info(f"[PATCH] keyword_id={keyword_id} - 수집 완료 표시 성공 (이미지 없음)")
             except Exception as e:
-                logger.error(f"[ERROR] keyword_id={keyword_id} - 수집 완료 표시 실패: {e}", exc_info=True)
+                logger.error(
+                    f"[ERROR] keyword_id={keyword_id} - 수집 완료 표시 실패: {e}",
+                    exc_info=True,
+                )
                 raise
 
             return []
@@ -62,7 +68,10 @@ async def fetch_and_save_images() -> list[str]:
             )
             logger.info(f"[POST] keyword_id={keyword_id} - 이미지 저장 성공")
         except Exception as e:
-            logger.error(f"[ERROR] keyword_id={keyword_id} - 이미지 저장 실패: {e}", exc_info=True)
+            logger.error(
+                f"[ERROR] keyword_id={keyword_id} - 이미지 저장 실패: {e}",
+                exc_info=True,
+            )
             raise
 
         # 5. 수집 완료 처리
@@ -77,7 +86,10 @@ async def fetch_and_save_images() -> list[str]:
             )
             logger.info(f"[PATCH] keyword_id={keyword_id} - 수집 완료 표시 성공")
         except Exception as e:
-            logger.error(f"[ERROR] keyword_id={keyword_id} - 수집 완료 표시 실패: {e}", exc_info=True)
+            logger.error(
+                f"[ERROR] keyword_id={keyword_id} - 수집 완료 표시 실패: {e}",
+                exc_info=True,
+            )
             raise
 
         logger.info(f"[DONE] keyword_id={keyword_id} - 전체 이미지 수집 프로세스 완료")

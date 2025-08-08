@@ -15,5 +15,6 @@ class GenerateClovaPostResponse(BaseModel):
     status: str = Field(..., description="처리 결과 상태: success 또는 failed")
     error_message: Optional[str] = Field(None, description="오류 발생 시 메시지 (optional)")
     from_cache: Optional[bool] = Field(
-        False, description="이미 생성된 콘텐츠 여부 (True: 기존 글 재사용, False: 새로 생성됨)"
+        False,
+        description="이미 생성된 콘텐츠 여부 (True: 기존 글 재사용, False: 새로 생성됨)",
     )
