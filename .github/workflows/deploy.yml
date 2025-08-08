@@ -29,10 +29,10 @@ jobs:
             # 3. .env 파일 생성 또는 업데이트
             # GitHub Secrets에 env 파일 내용을 저장하고, 이를 서버의 .env 파일로 생성
             # Django 앱용 .env 파일 생성
-            echo "${{ secrets.NCP_DJANGO_ENVS }}" > django_app/envs/.local.env
+            echo "${{ secrets.NCP_DJANGO_ENVS }}" | base64 --decode > django_app/envs/.local.env
             
             # FastAPI 앱용 .env 파일 생성
-            echo "${{ secrets.NCP_FASTAPI_ENVS }}" > fastapi_app/envs/.local.env
+            echo "${{ secrets.NCP_FASTAPI_ENVS }}" | base64 --decode > fastapi_app/envs/.local.env
             
             # 4. Docker Compose로 컨테이너 재배포
             # 기존 컨테이너를 중지하고 새로운 이미지로 재빌드 후 실행
