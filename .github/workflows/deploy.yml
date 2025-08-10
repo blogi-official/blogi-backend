@@ -33,7 +33,7 @@ jobs:
       - name: Build and Push Nginx image
         run: |
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:nginx ./resources/nginx
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:fastapi
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:nginx
 
       - name: NCP ssh connection and deploy
         uses: appleboy/ssh-action@master
@@ -48,4 +48,6 @@ jobs:
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:django
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:fastapi
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:nginx
+            docker-compose down
+            docker-compose up -d
             docker ps
