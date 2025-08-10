@@ -14,6 +14,11 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
@@ -33,7 +38,7 @@ jobs:
       - name: Build and Push Nginx image
         run: |
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:nginx ./resources/nginx
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:fastapi
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:nginx
 
       - name: NCP ssh connection and deploy
         uses: appleboy/ssh-action@master
@@ -48,4 +53,6 @@ jobs:
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:django
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:fastapi
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:nginx
+            docker-compose down
+            docker-compose up -d
             docker ps
