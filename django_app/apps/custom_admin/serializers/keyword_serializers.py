@@ -14,9 +14,12 @@ class KeywordToggleSerializer(serializers.ModelSerializer):
 
 
 class KeywordDetailSerializer(serializers.Serializer):
-    title = serializers.CharField(source="article.title")
+    #  제목은 키워드의 제목을 사용
+    title = serializers.CharField(source="keyword.title")
+    # 기사 본문/원문 링크는 Article에서
     content = serializers.CharField(source="article.content")
     original_url = serializers.CharField(source="article.origin_link")
+    # 생성글 이미지 3개 (없을 수 있으므로 allow_null)
     image_1_url = serializers.CharField(source="generated_post.image_1_url", allow_null=True)
     image_2_url = serializers.CharField(source="generated_post.image_2_url", allow_null=True)
     image_3_url = serializers.CharField(source="generated_post.image_3_url", allow_null=True)
