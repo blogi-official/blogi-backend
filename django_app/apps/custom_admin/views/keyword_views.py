@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import OpenApiExample, extend_schema
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -9,7 +9,7 @@ from apps.custom_admin.serializers.keyword_serializers import (
     KeywordTitleUpdateSerializer,
     KeywordToggleSerializer,
 )
-from apps.models import Keyword
+from apps.models import GeneratedPost, Keyword
 from apps.utils.permissions import IsAdmin
 
 
@@ -49,28 +49,64 @@ class KeywordToggleView(APIView):
 
 @extend_schema(
     tags=["[Admin] 키워드 관리"],
-    summary="키워드 기사 상세 조회",
+    summary="키워드 상세 조회 (기사 + 대표 이미지)",
     description=(
-        "관리자가 키워드를 클릭하면 해당 키워드에 매핑된 기사 본문 및 대표 이미지를 확인할 수 있습니다.\n\n"
-        "- 본문은 사전 스크래핑된 정적 데이터이며 수정 불가능합니다.\n"
-        "- 대표 이미지는 생성된 콘텐츠에 포함된 최대 3개의 URL입니다."
+        "관리자가 키워드를 클릭하면 해당 키워드에 매핑된 기사 본문과 대표 이미지를 조회합니다.\n\n"
+        "• **title은 `keyword.title`** 을 반환합니다.\n"
+        "• 본문(content)과 원문 링크(original_url)는 스크래핑된 **기사(Article)** 기준이며 수정 불가한 정적 데이터입니다.\n"
+        "• 대표 이미지는 **최신 활성(Active) 생성글(GeneratedPost)** 에 포함된 최대 3개의 URL을 제공합니다.\n"
+        "• 기사 또는 활성 생성글이 없으면 404를 반환합니다."
     ),
     responses={
         200: KeywordDetailSerializer,
         401: {"description": "관리자 인증 정보가 유효하지 않습니다."},
         403: {"description": "관리자 권한이 없습니다."},
-        404: {"description": "해당 키워드 또는 기사 데이터가 존재하지 않습니다."},
+        404: {"description": "해당 키워드 또는 기사/활성 생성글 데이터가 존재하지 않습니다."},
     },
+    examples=[
+        OpenApiExample(
+            name="성공 응답 예시",
+            value={
+                "message": "키워드 상세 조회 성공",
+                "data": {
+                    "title": "키워드 제목(Keyword.title)",
+                    "content": "<p>기사 본문 HTML 또는 텍스트...</p>",
+                    "original_url": "https://news.example.com/article/123",
+                    "image_1_url": "https://images.example.com/a.jpg",
+                    "image_2_url": "https://images.example.com/b.jpg",
+                    "image_3_url": None,
+                },
+            },
+            response_only=True,
+            status_codes=["200"],
+        ),
+        OpenApiExample(
+            name="데이터 없음(404)",
+            value={"detail": "해당 키워드 또는 기사/활성 생성글 데이터가 존재하지 않습니다."},
+            response_only=True,
+            status_codes=["404"],
+        ),
+    ],
 )
 # 키워드 콘텐츠 상세조회 002
 class KeywordDetailAPIView(APIView):
     permission_classes = [IsAdmin]
 
     def get(self, request, id: int):
-        keyword = get_object_or_404(Keyword, id=id)
-        article = getattr(keyword, "article", None)
-        generated_post = getattr(keyword, "generatedpost", None)
+        # Article은 OneToOne(related_name="article")이므로 select_related로 함께 가져오기
+        keyword = get_object_or_404(
+            Keyword.objects.select_related("article"),
+            id=id,
+        )
 
+        article = getattr(keyword, "article", None)
+
+        # ✅ 최신의 활성 GeneratedPost 1건을 대표로 선택
+        generated_post = (
+            GeneratedPost.objects.filter(keyword=keyword, is_active=True).order_by("-created_at", "-id").first()
+        )
+
+        # 기존 정책 유지: 둘 중 하나라도 없으면 404
         if not article or not generated_post:
             return Response(
                 {"detail": "해당 키워드 또는 기사 데이터가 존재하지 않습니다."},
@@ -79,6 +115,7 @@ class KeywordDetailAPIView(APIView):
 
         serializer = KeywordDetailSerializer(
             {
+                "keyword": keyword,  #  Serializer에서 keyword.title 사용
                 "article": article,
                 "generated_post": generated_post,
             }

@@ -10,6 +10,7 @@ from drf_spectacular.views import (
 urlpatterns: list[URLPattern | URLResolver] = [
     path("admins/", admin.site.urls),
     path("api/", include("apps.users.urls", namespace="users")),
+    path("api/", include(("apps.content.urls", "content"), namespace="content")),
     path("admin/", include("apps.custom_admin.urls", namespace="custom_admin")),
     path("api/internal/", include("apps.internal.urls", namespace="internal")),
 ]
