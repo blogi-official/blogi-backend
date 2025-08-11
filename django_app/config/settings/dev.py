@@ -1,7 +1,7 @@
 from .base import *
 
 DEBUG = True
-ALLOWED_HOSTS: list[str] = os.getenv("DJANGO_ALLOWED_HOSTS", "*").split(" ")
+ALLOWED_HOSTS: list[str] = os.getenv("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = "static/"
@@ -14,6 +14,8 @@ INTERNAL_IPS = [
     "127.0.0.1",
 ]
 
-ALLOWED_ORIGINS: list[str] = os.getenv("CORS_ALLOWED_ORIGINS", "").split(" ")
-# CORS_ALLOWED_ORIGINS += ALLOWED_ORIGINS # TODO 배포전 확인
-CSRF_TRUSTED_ORIGINS += ALLOWED_ORIGINS
+ALLOWED_ORIGINS: list[str] = os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
+
+if ALLOWED_ORIGINS and ALLOWED_ORIGINS != [""]:
+    CORS_ALLOWED_ORIGINS += ALLOWED_ORIGINS  # TODO 배포전 확인
+    CSRF_TRUSTED_ORIGINS += ALLOWED_ORIGINS
