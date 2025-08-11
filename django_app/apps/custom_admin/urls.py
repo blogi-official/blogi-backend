@@ -8,7 +8,7 @@ from apps.custom_admin.views.dashboard_views import (
 from apps.custom_admin.views.keyword_views import (
     KeywordDetailAPIView,
     KeywordTitleUpdateAPIView,
-    KeywordToggleView,
+    KeywordToggleView, KeywordListAPIView,
 )
 from apps.custom_admin.views.post_views import (
     ClovaPreviewAPIView,
@@ -80,4 +80,5 @@ urlpatterns = [
         ClovaStatsAPIView.as_view(),
         name="admin-dashboard-clova-stats",
     ),
+    path("titles/", KeywordListAPIView.as_view(), name="admin_titles_list"),
 ]

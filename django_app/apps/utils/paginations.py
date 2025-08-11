@@ -15,6 +15,7 @@ class CustomPageNumberPagination(PageNumberPagination):
                     "total_pages": self.page.paginator.num_pages,
                     "total_items": self.page.paginator.count,
                     "page_size": self.get_page_size(self.request),
+                    "max_page_size": self.max_page_size,
                 },
                 "data": data,
             }

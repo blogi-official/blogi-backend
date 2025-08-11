@@ -1,15 +1,19 @@
+from django.db.models import Count, Max, Q
 from django.shortcuts import get_object_or_404
-from drf_spectacular.utils import OpenApiExample, extend_schema
+from drf_spectacular.utils import OpenApiExample, extend_schema, OpenApiParameter
 from rest_framework import status
+from rest_framework.generics import ListAPIView
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.custom_admin.serializers.keyword_serializers import (
     KeywordDetailSerializer,
     KeywordTitleUpdateSerializer,
-    KeywordToggleSerializer,
+    KeywordToggleSerializer, KeywordListItemSerializer, AdminKeywordListPageSerializer,
 )
 from apps.models import GeneratedPost, Keyword
+from apps.utils.paginations import CustomPageNumberPagination
 from apps.utils.permissions import IsAdmin
 
 
@@ -169,3 +173,79 @@ class KeywordTitleUpdateAPIView(APIView):
             )
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# 관리자용 키워드 목록조회 api (신설)
+
+
+@extend_schema(
+    tags=["[Admin] 키워드 관리"],
+    summary="키워드 목록 조회 (관리자 전용, 전체)",
+    description=(
+        "관리자용 전체 키워드 목록 API입니다.\n\n"
+        "- `search`: 제목/카테고리 부분일치 검색\n"
+        "- `is_active`: true/false 필터\n"
+        "- `sort`: created_desc|created_asc|title_asc|title_desc|generated_desc|generated_asc|image_desc|image_asc|lastgen_desc|lastgen_asc\n"
+        "- 기본 정렬: created_desc (최신순)\n"
+    ),
+    parameters=[
+        OpenApiParameter(name="search", description="제목/카테고리 부분 검색", required=False, type=str),
+        OpenApiParameter(name="is_active", description="활성여부 필터 (true/false)", required=False, type=bool),
+        OpenApiParameter(name="sort", description="정렬 키", required=False, type=str),
+        OpenApiParameter(name="page", description="페이지 번호 (1-base)", required=False, type=int),
+        OpenApiParameter(name="page_size", description="페이지 크기", required=False, type=int),
+    ],
+    responses={200: AdminKeywordListPageSerializer},
+)
+class KeywordListAPIView(ListAPIView):
+    permission_classes = [IsAdmin]
+    serializer_class = KeywordListItemSerializer
+    pagination_class = CustomPageNumberPagination
+
+    def get_queryset(self):
+        """
+        related_name 없는 역참조 경로:
+        - GeneratedPost ← Keyword: 'generatedpost' (query 경로), 매니저는 generatedpost_set
+        - Image ← Keyword: 'image' (query 경로), 매니저는 image_set
+        """
+        qs = (
+            Keyword.objects
+            .annotate(
+                generated_count=Count("generatedpost", distinct=True),     #  OK
+                image_count=Count("image", distinct=True),                 #  OK
+                last_generated_at=Max("generatedpost__created_at"),        #  최근 생성글 시각
+            )
+        )
+
+        # 검색: 제목/카테고리/소스카테고리
+        search = self.request.query_params.get("search")
+        if search:
+            qs = qs.filter(
+                Q(title__icontains=search) |
+                Q(category__icontains=search) |
+                Q(source_category__icontains=search)
+            )
+
+        # 활성 필터
+        is_active = self.request.query_params.get("is_active")
+        if is_active is not None:
+            sval = str(is_active).lower()
+            if sval in ("true", "1", "yes"):
+                qs = qs.filter(is_active=True)
+            elif sval in ("false", "0", "no"):
+                qs = qs.filter(is_active=False)
+
+        # 정렬
+        sort = (self.request.query_params.get("sort") or "created_desc").lower()
+        sort_map = {
+            "created_desc": "-created_at",
+            "created_asc": "created_at",
+            "title_asc": "title",
+            "title_desc": "-title",
+            "generated_desc": "-generated_count",
+            "generated_asc": "generated_count",
+            "image_desc": "-image_count",
+            "image_asc": "image_count",
+            "lastgen_desc": "-last_generated_at",
+            "lastgen_asc": "last_generated_at",
+        }
+        return qs.order_by(sort_map.get(sort, "-created_at"))

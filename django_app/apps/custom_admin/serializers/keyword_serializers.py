@@ -43,3 +43,40 @@ class KeywordTitleUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Keyword
         fields = ["title"]
+# 관리자용 키워드 목록조회 API(신설)
+
+
+class KeywordListItemSerializer(serializers.ModelSerializer):
+    generated_count = serializers.IntegerField(read_only=True)
+    image_count = serializers.IntegerField(read_only=True)
+    last_generated_at = serializers.DateTimeField(read_only=True)
+    updated_at = serializers.SerializerMethodField()  # 모델에 없어도 안전
+
+    class Meta:
+        model = Keyword
+        fields = [
+            "id", "title", "category", "source_category",
+            "is_active", "is_collected", "collected_at",
+            "created_at", "updated_at",
+            "generated_count", "image_count", "last_generated_at",
+        ]
+
+    def get_updated_at(self, obj):
+        # Keyword에는 updated가 없으니 collected_at -> created_at 순으로 폴백
+        for cand in ("updated_at", "modified_at", "last_modified", "changed_at", "collected_at"):
+            if hasattr(obj, cand):
+                return getattr(obj, cand)
+        return getattr(obj, "created_at", None)
+
+
+# 커스텀 페이지네이션 스키마 (pagination + data)
+class PaginationMetaSerializer(serializers.Serializer):
+    current_page = serializers.IntegerField()
+    total_pages = serializers.IntegerField()
+    total_items = serializers.IntegerField()
+    page_size = serializers.IntegerField()
+    max_page_size = serializers.IntegerField()
+
+class AdminKeywordListPageSerializer(serializers.Serializer):
+    pagination = PaginationMetaSerializer()
+    data = KeywordListItemSerializer(many=True)
