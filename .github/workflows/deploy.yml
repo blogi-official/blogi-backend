@@ -55,5 +55,4 @@ jobs:
             docker-compose down
             docker-compose up -d
             docker image prune -af
-            mkdir test
 
