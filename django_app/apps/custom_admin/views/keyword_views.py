@@ -1,6 +1,6 @@
 from django.db.models import Count, Max, Q
 from django.shortcuts import get_object_or_404
-from drf_spectacular.utils import OpenApiExample, extend_schema, OpenApiParameter
+from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema
 from rest_framework import status
 from rest_framework.generics import ListAPIView
 from rest_framework.pagination import PageNumberPagination
@@ -8,9 +8,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.custom_admin.serializers.keyword_serializers import (
+    AdminKeywordListPageSerializer,
     KeywordDetailSerializer,
+    KeywordListItemSerializer,
     KeywordTitleUpdateSerializer,
-    KeywordToggleSerializer, KeywordListItemSerializer, AdminKeywordListPageSerializer,
+    KeywordToggleSerializer,
 )
 from apps.models import GeneratedPost, Keyword
 from apps.utils.paginations import CustomPageNumberPagination
@@ -174,6 +176,7 @@ class KeywordTitleUpdateAPIView(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 # 관리자용 키워드 목록조회 api (신설)
 
 
@@ -207,22 +210,17 @@ class KeywordListAPIView(ListAPIView):
         - GeneratedPost ← Keyword: 'generatedpost' (query 경로), 매니저는 generatedpost_set
         - Image ← Keyword: 'image' (query 경로), 매니저는 image_set
         """
-        qs = (
-            Keyword.objects
-            .annotate(
-                generated_count=Count("generatedpost", distinct=True),     #  OK
-                image_count=Count("image", distinct=True),                 #  OK
-                last_generated_at=Max("generatedpost__created_at"),        #  최근 생성글 시각
-            )
+        qs = Keyword.objects.annotate(
+            generated_count=Count("generatedpost", distinct=True),  #  OK
+            image_count=Count("image", distinct=True),  #  OK
+            last_generated_at=Max("generatedpost__created_at"),  #  최근 생성글 시각
         )
 
         # 검색: 제목/카테고리/소스카테고리
         search = self.request.query_params.get("search")
         if search:
             qs = qs.filter(
-                Q(title__icontains=search) |
-                Q(category__icontains=search) |
-                Q(source_category__icontains=search)
+                Q(title__icontains=search) | Q(category__icontains=search) | Q(source_category__icontains=search)
             )
 
         # 활성 필터

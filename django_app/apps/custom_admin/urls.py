@@ -7,8 +7,9 @@ from apps.custom_admin.views.dashboard_views import (
 )
 from apps.custom_admin.views.keyword_views import (
     KeywordDetailAPIView,
+    KeywordListAPIView,
     KeywordTitleUpdateAPIView,
-    KeywordToggleView, KeywordListAPIView,
+    KeywordToggleView,
 )
 from apps.custom_admin.views.post_views import (
     ClovaPreviewAPIView,

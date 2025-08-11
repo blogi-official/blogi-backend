@@ -1,3 +1,5 @@
+from typing import Any
+
 from rest_framework import serializers
 
 from apps.models import Keyword
@@ -43,6 +45,8 @@ class KeywordTitleUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Keyword
         fields = ["title"]
+
+
 # 관리자용 키워드 목록조회 API(신설)
 
 
@@ -55,10 +59,18 @@ class KeywordListItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Keyword
         fields = [
-            "id", "title", "category", "source_category",
-            "is_active", "is_collected", "collected_at",
-            "created_at", "updated_at",
-            "generated_count", "image_count", "last_generated_at",
+            "id",
+            "title",
+            "category",
+            "source_category",
+            "is_active",
+            "is_collected",
+            "collected_at",
+            "created_at",
+            "updated_at",
+            "generated_count",
+            "image_count",
+            "last_generated_at",
         ]
 
     def get_updated_at(self, obj):
@@ -77,6 +89,7 @@ class PaginationMetaSerializer(serializers.Serializer):
     page_size = serializers.IntegerField()
     max_page_size = serializers.IntegerField()
 
+
 class AdminKeywordListPageSerializer(serializers.Serializer):
     pagination = PaginationMetaSerializer()
-    data = KeywordListItemSerializer(many=True)
+    data: Any = KeywordListItemSerializer(many=True)
