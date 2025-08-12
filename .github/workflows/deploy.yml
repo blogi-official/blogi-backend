@@ -52,6 +52,5 @@ jobs:
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:fastapi
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:nginx
             docker compose up -d
-            mkdir test2
             docker image prune -af
 
