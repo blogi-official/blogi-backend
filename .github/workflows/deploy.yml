@@ -27,18 +27,15 @@ jobs:
 
       - name: Build and Push Django image
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:django ./django_app
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:django
+          docker buildx build --platform linux/amd64,linux/arm64 -t ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:django --push ./django_app
 
       - name: Build and Push FastAPI image
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:fastapi ./fastapi_app
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:fastapi
+          docker buildx build --platform linux/amd64,linux/arm64 -t ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:fastapi --push ./fastapi_app
 
       - name: Build and Push Nginx image
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:nginx ./resources/nginx
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:nginx
+          docker buildx build --platform linux/amd64,linux/arm64 -t ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:nginx --push ./resources/nginx
 
       - name: NCP ssh connection and deploy
         uses: appleboy/ssh-action@master
@@ -50,11 +47,11 @@ jobs:
           script: |
             cd /root
             docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
+            docker compose down
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:django
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:fastapi
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:nginx
-            docker-compose down
-            docker-compose up -d
-            mkdir test1
+            docker compose up -d
+            mkdir test2
             docker image prune -af
 
