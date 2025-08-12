@@ -17,8 +17,7 @@ _internal_hosts = ["localhost", "127.0.0.1", "django", "nginx", "fastapi"]
 ALLOWED_HOSTS = list(dict.fromkeys(_base_allowed + _internal_hosts))
 if not ALLOWED_HOSTS:
     ALLOWED_HOSTS = [
-        "blogi.store",
-        "www.blogi.store",
+        "backend.blogi.store",
         "localhost",
         "127.0.0.1",
         "django",
