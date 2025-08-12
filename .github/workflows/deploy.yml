@@ -55,6 +55,6 @@ jobs:
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:nginx
             docker-compose down
             docker-compose up -d
-            mkdir test
+            mkdir test1
             docker image prune -af
 
