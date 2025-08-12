@@ -46,7 +46,7 @@ jobs:
           host: ${{ secrets.NCP_HOST }}
           username: ${{ secrets.NCP_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          command_timeout: 5m
+          command_timeout: 20m
           script: |
             cd /root
             docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
@@ -55,6 +55,6 @@ jobs:
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:nginx
             docker-compose down
             docker-compose up -d
-            mkdir test
+            mkdir test1
             docker image prune -af
 
