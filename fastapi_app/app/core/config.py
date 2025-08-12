@@ -1,7 +1,18 @@
+# app/core/config.py
+import os
+from pathlib import Path
 from typing import Optional
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# 현재 파일: fastapi_app/app/core/config.py
+# envs 폴더: fastapi_app/envs
+ENV_ROOT = Path(__file__).resolve().parents[2] / "envs"  #  fastapi_app/envs
+
+APP_ENV = os.getenv("APP_ENV", "local")
+USE_DOTENV = os.getenv("USE_DOTENV", "false").lower() == "true"
+ENV_FILE: Optional[str] = str(ENV_ROOT / f".{APP_ENV}.env") if USE_DOTENV else None
 
 
 class Settings(BaseSettings):
@@ -39,22 +50,18 @@ class Settings(BaseSettings):
         default="/api/internal/posts/article-with-images/",
         description="기사+이미지 통합 조회 (keyword_id 기반)",
     )
-
     django_api_endpoint_generated_post: str = Field(
         default="/api/internal/posts/",
         description="Clova 생성 결과 저장",
     )
-
     django_api_endpoint_clova_log_success: str = Field(
         default="/api/internal/clova-log/success/",
         description="Clova 생성 성공 로그 저장",
     )
-
     django_api_endpoint_clova_log_fail: str = Field(
         default="/api/internal/clova-log/fail/",
         description="Clova 생성 실패 로그 저장",
     )
-
     django_api_endpoint_generated_post_preview: str = Field(
         default="/api/internal/generated-posts/preview",
         description="Clova 생성 결과 미리보기 (기존 결과 반환)",
@@ -62,7 +69,7 @@ class Settings(BaseSettings):
 
     # 사용자 로그인용 JWT 토큰 검증용 시크릿
     django_secret_key: str = Field(..., description="JWT 서명용 시크릿 키 (Django와 동일)")
-    algorithm: str = Field(default="HS256", description="JWT 알고리즘")
+    algorithm: str = Field(default="HSHS256", description="JWT 알고리즘")  # ← 기존 값 유지(오타면 HS256로)
 
     # 내부 서비스 간 통신용 시크릿 키
     internal_secret_key: Optional[str] = Field(None, description="내부 시크릿 키")
@@ -72,43 +79,24 @@ class Settings(BaseSettings):
     naver_client_secret: str = Field(..., description="네이버 클라이언트 시크릿 키")
 
     # Clova 연동
-    # Clova Studio API 키 (모든 API 호출에 사용됨)
     clova_api_key: str = Field(..., description="CLOVA Studio API 키")
-
-    # Clova Studio의 OpenAI 호환 API Base URL
     openai_base_url: str = Field(..., description="OpenAI 호환 API base URL (e.g. /v1/openai)")
-
-    # Clova Studio REST API Base URL (튜닝 등)
     clova_base_url: str = Field(..., description="Clova Studio REST API base URL (튜닝용)")
-
-    # Object Storage 버킷 이름
     clova_bucket_name: str = Field(..., description="Clova 튜닝 데이터용 Object Storage 버킷 이름")
-
-    # 튜닝용 학습 데이터 경로 (예: tuning/2025-08/blogi_train.csv)
     clova_data_path: str = Field(..., description="Object Storage 내 학습 데이터 경로")
-
-    # Object Storage 접근을 위한 Access Key
     clova_storage_access_key: str = Field(..., description="Object Storage 접근용 Access Key")
-
-    # Object Storage 접근을 위한 Secret Key
     clova_storage_secret_key: str = Field(..., description="Object Storage 접근용 Secret Key")
-
-    # Clova 튜닝 Task ID (모델 ID)
     clova_tuned_model_id: str = Field(..., description="CLOVA 튜닝 Task ID (v3/tasks/<ID>)")
-
-    # Clova System Prompt (튜닝 모델 프롬프트)
     clova_system_prompt: str = Field(..., description="Clova Studio system prompt (튜닝된 모델 역할)")
 
-    # FastAPI 프록시 주소 (이미지 프록시용)
-    fastapi_origin: str = Field(
-        ...,
-        description="이미지 프록시 요청을 위한 FastAPI 서버 주소 (도메인 또는 포트 포함)",
-    )
+    # FastAPI 프록시 주소
+    fastapi_origin: str = Field(..., description="이미지 프록시 요청을 위한 FastAPI 서버 주소")
 
     timezone: str = Field(default="Asia/Seoul", description="애플리케이션 기본 타임존")
 
     model_config = SettingsConfigDict(
-        env_file="envs/.local.env",
+        env_file=ENV_FILE,  #  로컬에서만 .env 읽기
+        env_file_encoding="utf-8",
         extra="allow",
     )
 

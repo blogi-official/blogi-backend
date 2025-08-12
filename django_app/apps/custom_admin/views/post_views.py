@@ -12,7 +12,7 @@ from apps.custom_admin.serializers.post_serializers import (
 )
 from apps.models import CopyLog, GeneratedPost, Keyword
 
-# Todo FastAPI(Clova) 호출 함수 - 실제 구현 또는 외부 호출 래퍼 함수
+
 # 현재는 임시 모킹 함수 사용 중
 from apps.utils.clova_mock import request_clova_regenerate
 from apps.utils.paginations import CustomPageNumberPagination
@@ -101,8 +101,7 @@ class ClovaRegenerateAPIView(APIView):
         keyword = get_object_or_404(Keyword, id=id)
 
         try:
-            # Todo FastAPI(Clova Studio) 호출 - 실제 비동기 작업 또는 sync 래퍼 함수 사용 권장
-            # 현재는 임시 모킹 함수 사용 중
+
             post_id, status_str = request_clova_regenerate(keyword.id)
         except Exception:
             return Response(

@@ -1,22 +1,23 @@
+version: "3.9"
+
 services:
   django:
     container_name: django
     env_file:
-      - django_app/envs/.local.env
+      - django_app/envs/.prod.env
     environment:
-      - DJANGO_SETTINGS_MODULE=config.settings.local #TODO 추후 prod.py로 변경 필요
+      - DJANGO_SETTINGS_MODULE=config.settings.prod
     build:
       context: ./django_app
     working_dir: /blogi-backend/django_app
     command: >
       sh -c "python manage.py migrate &&
              python manage.py collectstatic --noinput &&
-             gunicorn --workers 3 --worker-class=uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000 config.asgi:application
-             "
+             gunicorn --workers 3 --worker-class=uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000 config.asgi:application"
     ports:
       - "8000:8000"
     volumes:
-      - static_volume:/blogi/app/static
+      - static_volume:/blogi-backend/django_app/staticfiles
       - media_volume:/blogi/app/media
     networks:
       - ws
@@ -29,12 +30,12 @@ services:
   fastapi:
     container_name: fastapi
     env_file:
-      - fastapi_app/envs/.local.env
+      - fastapi_app/envs/.prod.env
     build:
       context: ./fastapi_app
     working_dir: /blogi-backend/fastapi_app
     command: >
-      uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+      uvicorn app.main:app --host 0.0.0.0 --port 8000 --root-path /fastapi
     ports:
       - "8001:8000"
     volumes:
@@ -48,8 +49,8 @@ services:
         condition: service_healthy
 
   nginx:
-    image: nginx:latest
     container_name: nginx
+    image: nginx:latest
     ports:
       - "80:80"
       - "443:443"
@@ -57,9 +58,12 @@ services:
       - django
       - fastapi
     volumes:
-      - ./resources/nginx/nginx.local.conf:/etc/nginx/nginx.conf:ro
+      - ./resources/nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - static_volume:/blogi-backend/django_app/staticfiles
       - static_volume:/blogi/app/static
       - media_volume:/blogi/app/media
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/certbot:/var/www/certbot:ro
     networks:
       - ws
 
@@ -72,13 +76,13 @@ services:
       POSTGRES_ROOT_USER: postgres
       POSTGRES_DB: blogi
     ports:
-      - 5432:5432
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - ws
     healthcheck:
-      test: [ "CMD", "pg_isready", "-U", "postgres"]
+      test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -92,7 +96,7 @@ services:
     networks:
       - ws
     healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
