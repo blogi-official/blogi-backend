@@ -27,15 +27,15 @@ jobs:
 
       - name: Build and Push Django image
         run: |
-          docker buildx build --platform linux/amd64,linux/arm64 -t ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:django --push ./django_app
+          docker build --platform linux/amd64 -t ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:django --push ./django_app
 
       - name: Build and Push FastAPI image
         run: |
-          docker buildx build --platform linux/amd64,linux/arm64 -t ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:fastapi --push ./fastapi_app
+          docker build --platform linux/amd64 -t ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:fastapi --push ./fastapi_app
 
       - name: Build and Push Nginx image
         run: |
-          docker buildx build --platform linux/amd64,linux/arm64 -t ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:nginx --push ./resources/nginx
+          docker build --platform linux/amd64 -t ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:nginx --push ./resources/nginx
 
       - name: NCP ssh connection and deploy
         uses: appleboy/ssh-action@master
