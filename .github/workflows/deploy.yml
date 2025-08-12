@@ -48,11 +48,13 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           command_timeout: 5m
           script: |
+            cd /root
             docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:django
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:fastapi
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:nginx
             docker-compose down
             docker-compose up -d
+            mkdir test
             docker image prune -af
 
