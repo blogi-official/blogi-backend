@@ -1,24 +1,48 @@
+# config/settings/prod.py
+import os
+
 from .base import *
 
 DEBUG = False
 
-# TODO 운영용 도메인 허용 (기본값 비워두고 나중에 .env에서 주입) #.env에서 prod 추가필요
-ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "").split(",")
 
-# 정적 파일 및 미디어 설정
+def _split_env(key: str, default: str = "") -> list[str]:
+    raw = os.getenv(key, default)
+    return [x.strip() for x in raw.split(",") if x.strip()]
+
+
+# ── ALLOWED_HOSTS ───────────────────────────────────────────
+_base_allowed = _split_env("DJANGO_ALLOWED_HOSTS", "")
+_internal_hosts = ["localhost", "127.0.0.1", "django", "nginx", "fastapi"]
+ALLOWED_HOSTS = list(dict.fromkeys(_base_allowed + _internal_hosts))
+if not ALLOWED_HOSTS:
+    ALLOWED_HOSTS = [
+        "blogi.store",
+        "www.blogi.store",
+        "localhost",
+        "127.0.0.1",
+        "django",
+        "nginx",
+        "fastapi",
+    ]
+
+# ── CORS / CSRF ─────────────────────────────────────────────
+# 브라우저 오리진만 CORS에 넣습니다.
+CORS_ALLOWED_ORIGINS = _split_env("CORS_ALLOWED_ORIGINS", "")
+if CORS_ALLOWED_ORIGINS:
+    CORS_ALLOW_ALL_ORIGINS = False  # base.py의 allow_all 무효화
+
+# CSRF는 스킴 필수. env 그대로 사용(프론트 오리진 중심).
+CSRF_TRUSTED_ORIGINS = _split_env("CSRF_TRUSTED_ORIGINS", "")
+
+# ── 정적/미디어 ─────────────────────────────────────────────
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-# CORS/CSRF 설정
-ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")  # TODO 배포전 추가
-
-if ALLOWED_ORIGINS and ALLOWED_ORIGINS != [""]:
-    CORS_ALLOWED_ORIGINS = ALLOWED_ORIGINS
-    CSRF_TRUSTED_ORIGINS = ALLOWED_ORIGINS
-
+# ── 가시화 로그 ─────────────────────────────────────────────
 print("=== DJANGO PROD SETTINGS LOADED ===")
 print(f"ALLOWED_HOSTS: {ALLOWED_HOSTS}")
 print(f"CORS_ALLOWED_ORIGINS: {CORS_ALLOWED_ORIGINS}")
