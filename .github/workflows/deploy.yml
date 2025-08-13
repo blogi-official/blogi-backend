@@ -75,7 +75,7 @@ jobs:
             export COMPOSE_HTTP_TIMEOUT=600 DOCKER_CLIENT_TIMEOUT=600
             cd /root
 
-            # 비대화형 로그인
+            # 로그
             echo '${{ secrets.DOCKERHUB_ACCESS_TOKEN }}' | docker login -u '${{ secrets.DOCKERHUB_USERNAME }}' --password-stdin
 
             # 💡 다운하지 말고 최신 이미지로 바로 갱신 (무중단에 가깝게)
