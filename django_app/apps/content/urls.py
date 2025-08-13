@@ -11,6 +11,14 @@ app_name = "content"
 urlpatterns = [
     path("generate/", GenerateProxyAPIView.as_view(), name="generate"),
     #  기사 수집 잡 프록시
-    path("articles/job/start/", ArticleJobStartAPIView.as_view(), name="article_job_start"),
-    path("articles/job/status/<str:job_id>/", ArticleJobStatusAPIView.as_view(), name="article_job_status"),
+    path(
+        "articles/job/start/",
+        ArticleJobStartAPIView.as_view(),
+        name="article_job_start",
+    ),
+    path(
+        "articles/job/status/<str:job_id>/",
+        ArticleJobStatusAPIView.as_view(),
+        name="article_job_status",
+    ),
 ]

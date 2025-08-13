@@ -39,7 +39,10 @@ class GenerateProxyAPIView(APIView):
         try:
             data = r.json()
         except ValueError:
-            return Response({"status": "fail", "error_message": "invalid json from fastapi"}, status=502)
+            return Response(
+                {"status": "fail", "error_message": "invalid json from fastapi"},
+                status=502,
+            )
 
         if r.status_code >= 400:
             return Response(data, status=r.status_code)

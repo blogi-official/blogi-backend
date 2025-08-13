@@ -191,8 +191,18 @@ class KeywordTitleUpdateAPIView(APIView):
         "- 기본 정렬: created_desc (최신순)\n"
     ),
     parameters=[
-        OpenApiParameter(name="search", description="제목/카테고리 부분 검색", required=False, type=str),
-        OpenApiParameter(name="is_active", description="활성여부 필터 (true/false)", required=False, type=bool),
+        OpenApiParameter(
+            name="search",
+            description="제목/카테고리 부분 검색",
+            required=False,
+            type=str,
+        ),
+        OpenApiParameter(
+            name="is_active",
+            description="활성여부 필터 (true/false)",
+            required=False,
+            type=bool,
+        ),
         OpenApiParameter(name="sort", description="정렬 키", required=False, type=str),
         OpenApiParameter(name="page", description="페이지 번호 (1-base)", required=False, type=int),
         OpenApiParameter(name="page_size", description="페이지 크기", required=False, type=int),

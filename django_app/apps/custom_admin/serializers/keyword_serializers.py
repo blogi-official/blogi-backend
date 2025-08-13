@@ -75,7 +75,13 @@ class KeywordListItemSerializer(serializers.ModelSerializer):
 
     def get_updated_at(self, obj):
         # Keyword에는 updated가 없으니 collected_at -> created_at 순으로 폴백
-        for cand in ("updated_at", "modified_at", "last_modified", "changed_at", "collected_at"):
+        for cand in (
+            "updated_at",
+            "modified_at",
+            "last_modified",
+            "changed_at",
+            "collected_at",
+        ):
             if hasattr(obj, cand):
                 return getattr(obj, cand)
         return getattr(obj, "created_at", None)
