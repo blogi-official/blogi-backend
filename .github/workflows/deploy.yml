@@ -24,38 +24,44 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
 
-      # Buildx 설정 (캐시 없이)
+      # Buildx + 레지스트리 캐시 설정 (큰 속도 향상)
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       # === Django 이미지 ===
-      - name: Build & Push Django
+      - name: Build & Push Django (cached)
         uses: docker/build-push-action@v6
         with:
           context: ./django_app
           platforms: linux/amd64
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:django
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:cache-django
+          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:cache-django,mode=max
 
       # === FastAPI 이미지 ===
-      - name: Build & Push FastAPI
+      - name: Build & Push FastAPI (cached)
         uses: docker/build-push-action@v6
         with:
           context: ./fastapi_app
           platforms: linux/amd64
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:fastapi
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:cache-fastapi
+          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:cache-fastapi,mode=max
 
       # === Nginx 이미지 ===
-      - name: Build & Push Nginx
+      - name: Build & Push Nginx (cached)
         uses: docker/build-push-action@v6
         with:
           context: ./resources/nginx
           platforms: linux/amd64
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:nginx
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:cache-nginx
+          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/blogi_docker_ncp:cache-nginx,mode=max
 
-      # SSH 배포
+      #  SSH 배포: 다운 없이 롤링, 대화형/타임아웃 방지
       - name: NCP ssh connection and deploy
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -63,18 +69,18 @@ jobs:
           username: ${{ secrets.NCP_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script_stop: true
-          command_timeout: 30m
+          command_timeout: 40m
           script: |
             set -euo pipefail
             export COMPOSE_HTTP_TIMEOUT=600 DOCKER_CLIENT_TIMEOUT=600
             cd /root
 
-            # DockerHub 로그인
+            # 로그
             echo '${{ secrets.DOCKERHUB_ACCESS_TOKEN }}' | docker login -u '${{ secrets.DOCKERHUB_USERNAME }}' --password-stdin
 
-            # 최신 이미지로 갱신
+            # 💡 다운하지 말고 최신 이미지로 바로 갱신 (무중단에 가깝게)
             docker compose pull --quiet || true
             docker compose up -d --remove-orphans
 
-            # 불필요한 이미지/컨테이너/볼륨 즉시 삭제
-            docker system prune -af --volumes
+            # 정리(백그라운드로 느긋하게)
+            (docker image prune -f --filter "until=24h" >/dev/null 2>&1 || true) &
