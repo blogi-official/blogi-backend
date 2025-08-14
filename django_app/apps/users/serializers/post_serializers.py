@@ -32,3 +32,11 @@ class CopyLogSerializer(serializers.ModelSerializer):
         model = CopyLog
         fields = ["id", "user", "post", "copied_at"]
         read_only_fields = fields
+
+
+# 콘텐츠 생성 상태 변경
+class GeneratedPostUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GeneratedPost
+        fields = ["id", "is_generated"]
+        read_only_fields = ["id"]
