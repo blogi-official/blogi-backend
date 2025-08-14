@@ -47,6 +47,17 @@ services:
       redis:
         condition: service_healthy
 
+    shm_size: "1gb"
+    mem_limit: "4g"
+    cpus: "2.0"
+    pids_limit: 2048
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
   nginx:
     image: nginx:latest
     container_name: nginx
