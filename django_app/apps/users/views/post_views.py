@@ -16,6 +16,7 @@ from apps.users.serializers.post_serializers import (
     CopyLogSerializer,
     GeneratedPostDetailSerializer,
     GeneratedPostListSerializer,
+    GeneratedPostUpdateSerializer,
 )
 from apps.utils.paginations import CustomPageNumberPagination
 from apps.utils.permissions import IsUser
@@ -136,7 +137,7 @@ class PostPDFDownloadAPIView(APIView):
 
     def get(self, request, id):
         user = request.user
-        post = get_object_or_404(GeneratedPost, id=id)
+        post = get_object_or_404(GeneratedPost, pk=id)
 
         if post.user != user:
             return Response(
@@ -193,3 +194,32 @@ class GeneratedPostDeleteAPIView(APIView):
 
         post.delete()  # CASCADE로 연결된 copy_log, image 자동 삭제
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# 콘텐츠 생성 상태 변경
+@extend_schema(
+    tags=["[User] Content - 생성 결과"],
+    summary="(User) 생성된 콘텐츠 상태 변경",
+    description="사용자가 생성한 콘텐츠에 상태(생성 완료)를 표시합니다.",
+    responses={
+        200: GeneratedPostUpdateSerializer,
+        404: OpenApiResponse(description="해당 ID의 콘텐츠를 찾을 수 없습니다."),
+        401: OpenApiResponse(description="JWT 인증이 필요합니다."),
+    },
+)
+class UserGeneratedPostPatchAPIView(APIView):
+    permission_classes = [IsUser]
+    serializer_class = GeneratedPostUpdateSerializer
+
+    def patch(self, request, post_id: int):
+        user = request.user
+        try:
+            post = GeneratedPost.objects.get(id=post_id, user_id=user.id)
+        except GeneratedPost.DoesNotExist:
+            return Response({"detail": "해당 ID의 콘텐츠를 찾을 수 없습니다."}, status=404)
+
+        post.is_generated = True
+        post.save(update_fields=["is_generated"])
+
+        serializer = self.serializer_class(instance=post)
+        return Response(serializer.data, status=200)

@@ -113,6 +113,7 @@ class GeneratedPost(models.Model):
     image_3_url = models.CharField(max_length=1000, null=True, blank=True)
     copy_count = models.IntegerField(default=0)
     is_active = models.BooleanField(default=True)
+    is_generated = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

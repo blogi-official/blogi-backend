@@ -16,6 +16,7 @@ from apps.users.views.post_views import (
     PostPDFDownloadAPIView,
     UserGeneratedPostDetailAPIView,
     UserGeneratedPostListAPIView,
+    UserGeneratedPostPatchAPIView,
 )
 from apps.users.views.profile_views import (
     UserDeleteView,
@@ -55,12 +56,14 @@ urlpatterns = [
         GeneratedPostPublicDetailAPIView.as_view(),
         name="generated-post-result",
     ),
-    path("posts/<int:id>/copy/", PostCopyAPIView.as_view(), name="post-copy"),
+    path("posts/<int:pk>/copy/", PostCopyAPIView.as_view(), name="post-copy"),
     path(
         "posts/<int:id>/pdf/",
         PostPDFDownloadAPIView.as_view(),
         name="post-pdf-download",
     ),
+    # 콘텐츠 생성 상태 변경
+    path("posts/<int:post_id>/status/", UserGeneratedPostPatchAPIView.as_view(), name="post-status-update"),
     path(
         "user/posts/<int:id>/",
         GeneratedPostDeleteAPIView.as_view(),

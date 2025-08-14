@@ -116,6 +116,7 @@ class InternalGeneratedPostCreateAPIView(APIView):
             image_1_url=data.get("image_1_url"),
             image_2_url=data.get("image_2_url"),
             image_3_url=data.get("image_3_url"),
+            is_generated=False,
             created_at=now(),
         )
 
