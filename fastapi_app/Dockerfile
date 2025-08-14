@@ -37,7 +37,12 @@ COPY pyproject.toml poetry.lock ./
 RUN poetry install --no-interaction --no-root
 
 # ----------------------------
-# 🧪 6. Install Playwright + 필수 deps
+# 📁 6. Copy app files
+# ----------------------------
+COPY . .
+
+# ----------------------------
+# 🧪 7. Install Playwright deps + chromium
 # ----------------------------
 RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
@@ -73,12 +78,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     xdg-utils \
     libgbm1 \
  && rm -rf /var/lib/apt/lists/* \
- && poetry run playwright install --with-deps
-
-# ----------------------------
-# 📁 7. Copy app files
-# ----------------------------
-COPY . .
+ && playwright install --with-deps chromium
 
 # ----------------------------
 # 🚀 8. Start FastAPI
