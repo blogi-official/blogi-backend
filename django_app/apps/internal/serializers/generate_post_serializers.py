@@ -1,4 +1,11 @@
+import logging
+
+from django.utils import timezone
 from rest_framework import serializers
+
+from apps.models import GeneratedPost
+
+logger = logging.getLogger(__name__)
 
 
 # 기사+이미지 조회 005
@@ -29,3 +36,30 @@ class ClovaFailLogSerializer(serializers.Serializer):
     keyword_id = serializers.IntegerField()
     error_message = serializers.CharField()
     response_time_ms = serializers.IntegerField(required=False)
+
+
+class InternalGeneratedPostDetailSerializer(serializers.ModelSerializer):
+    """clova로 생성된 콘텐츠 조회"""
+
+    keyword_id = serializers.IntegerField(source="keyword.id")
+    user_id = serializers.IntegerField(source="user.id")
+
+    class Meta:
+        model = GeneratedPost
+        fields = ["id", "title", "content", "image_1_url", "image_2_url", "image_3_url", "keyword_id", "user_id"]
+
+
+class InternalGeneratedPostUpdateSerializer(serializers.ModelSerializer):
+    """clova로 생성된 콘텐츠 수정(재생성)"""
+
+    class Meta:
+        model = GeneratedPost
+        fields = ["title", "content", "image_1_url", "image_2_url", "image_3_url", "created_at"]
+
+    def update(self, instance, validated_data):
+        instance.is_generated = True
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.created_at = timezone.now()
+        instance.save()
+        return instance

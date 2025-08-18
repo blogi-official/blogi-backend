@@ -40,6 +40,11 @@ class Settings(BaseSettings):
         description="기사+이미지 통합 조회 (keyword_id 기반)",
     )
 
+    django_api_endpoint_generated_get_patch: str = Field(
+        default="/api/internal/posts/",
+        description="Clova 생성 결과 조회 및 저장(재생성)",
+    )
+
     django_api_endpoint_generated_post: str = Field(
         default="/api/internal/posts/",
         description="Clova 생성 결과 저장",

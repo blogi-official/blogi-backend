@@ -17,6 +17,7 @@ from apps.internal.views.generate_post_views import (
     GeneratedPostPreviewAPIView,
     InternalArticleDetailAPIView,
     InternalGeneratedPostCreateAPIView,
+    InternalRegeneratedPostAPIView,
 )
 from apps.internal.views.keyword import KeywordDeactivateAPIView
 from apps.internal.views.scrap_titles_views import KeywordCreateAPIView
@@ -62,6 +63,12 @@ urlpatterns = [
         "generated-posts/",
         InternalGeneratedPostCreateAPIView.as_view(),
         name="internal-post-create",
+    ),
+    # Clova 생성 결과 조회 및 재생성 저장(GET, PATCH)
+    path(
+        "posts/<int:post_id>/",
+        InternalRegeneratedPostAPIView.as_view(),
+        name="internal_post_detail_update",
     ),
     # Clova 생성 성공/실패 로그 생성 (POST) 006
     path(

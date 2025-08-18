@@ -14,6 +14,8 @@ from apps.internal.serializers.generate_post_serializers import (
     ClovaFailLogSerializer,
     ClovaSuccessLogSerializer,
     InternalGeneratedPostCreateSerializer,
+    InternalGeneratedPostDetailSerializer,
+    InternalGeneratedPostUpdateSerializer,
 )
 from apps.models import Article, ClovaStudioLog, GeneratedPost, Image, Keyword, User
 from config.settings import INTERNAL_SECRET
@@ -267,3 +269,40 @@ class GeneratedPostPreviewAPIView(APIView):
             )
         except GeneratedPost.DoesNotExist:
             return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@extend_schema(
+    tags=["[Internal] FastAPI ↔ Django - 콘텐츠 동기화"],
+    summary="Clova 생성 결과 덮어쓰기 (재생성)",
+    description="FastAPI가 기존 글을 재생성한 결과를 Django로 전송하여 덮어씁니다.",
+    request=InternalGeneratedPostUpdateSerializer,
+    responses={200: ...},  # 성공 응답 스키마 정의
+)
+class InternalRegeneratedPostAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    # clova로 생성된 게시글 조회
+    def get(self, request, post_id: int):
+        secret = request.headers.get("X-Internal-Secret")
+        if secret != INTERNAL_SECRET:
+            return Response({"detail": "내부 인증 실패"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        post = get_object_or_404(GeneratedPost, id=post_id)
+        serializer = InternalGeneratedPostDetailSerializer(post)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    # clova로 생성된 게시글 수정(재생성)
+    def patch(self, request, post_id: int):
+        secret = request.headers.get("X-Internal-Secret")
+        if secret != INTERNAL_SECRET:
+            return Response({"detail": "내부 인증 실패"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        post = get_object_or_404(GeneratedPost, id=post_id)
+        serializer = InternalGeneratedPostUpdateSerializer(instance=post, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        updated_post = serializer.save()
+
+        return Response(
+            {"post_id": updated_post.id, "created_at": updated_post.created_at.isoformat()},
+            status=status.HTTP_200_OK,
+        )
