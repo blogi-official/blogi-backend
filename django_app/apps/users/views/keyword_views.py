@@ -89,7 +89,7 @@ class KeywordListAPIView(APIView):
 
         paginator = CustomPageNumberPagination()
         page_qs = paginator.paginate_queryset(qs, request)
-        serializer = KeywordListSerializer(page_qs, many=True)
+        serializer = KeywordListSerializer(page_qs, many=True, context={"user": user})
         return paginator.get_paginated_response(serializer.data)
 
 
