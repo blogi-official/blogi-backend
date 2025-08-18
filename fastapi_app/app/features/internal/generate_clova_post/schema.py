@@ -1,7 +1,7 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import Optional
 
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, Field
 
 
 class GenerateClovaPostRequest(BaseModel):
@@ -18,3 +18,9 @@ class GenerateClovaPostResponse(BaseModel):
         False,
         description="이미 생성된 콘텐츠 여부 (True: 기존 글 재사용, False: 새로 생성됨)",
     )
+
+
+class RegenerateClovaPostRequest(BaseModel):
+    """Clova 콘텐츠 재생성 요청 스키마"""
+
+    user_id: int = Field(..., description="재생성을 요청한 사용자 ID")
