@@ -12,7 +12,7 @@ from app.features.internal.fetch_article.scraper.playwright_browser import (
     get_browser,  # 서버 기동 시 예열(선택)
 )
 from app.features.internal.fetch_article.scraper.playwright_browser import (
-    shutdown as pw_shutdown,  # 서버 종료 시 정리
+    recycle_browser as pw_shutdown,  # 서버 종료 시 정리
 )
 
 # 배포 경로 기준 (필요 시 조정)

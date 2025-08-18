@@ -1,6 +1,4 @@
 # app/features/internal/fetch_article/services.py
-from urllib.parse import urlparse
-
 from app.common.constants.category import CATEGORY_META_MAP
 from app.common.logger import get_logger
 from app.features.internal.django_client import (
@@ -8,11 +6,18 @@ from app.features.internal.django_client import (
     fetch_keywords_from_django,
     send_articles_to_django,
 )
+
+# 루프마다 컨텍스트 정리
+from app.features.internal.fetch_article.scraper.playwright_browser import (
+    close_all_contexts,
+)
+
+# 블로그용 (별칭으로)
 from app.features.internal.fetch_article.smart_blog_fetcher import (
     fetch_smart_article as fetch_smart_blog,
 )
 
-# ⛳️ 파일명이 smart_news_fecher.py 라면 반드시 smart_news_fetcher.py 로 고치고 아래 임포트 유지
+# 뉴스용
 from app.features.internal.fetch_article.smart_news_fetcher import fetch_smart_article
 
 logger = get_logger(__name__)
@@ -125,3 +130,10 @@ async def scrape_and_send_articles():
             except Exception as de:
                 logger.warning(f"[WARN] deactivate 실패(예외 처리): {keyword_id} - {de}")
             continue
+
+        finally:
+            # ✅ 매 키워드 처리 후 남은 컨텍스트 전부 닫기 (누수 차단)
+            await close_all_contexts()
+            # (옵션) 누적 메모리가 가끔 안내려가면 주기적으로 브라우저 완전 리사이클:
+            # if attempts_by_keyword.get(keyword_id, 0) % 10 == 0:
+            #     await recycle_browser()

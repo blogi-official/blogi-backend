@@ -1,7 +1,10 @@
+import logging
 import random
 
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+
+logger = logging.getLogger(__name__)
 
 
 class User(AbstractUser):
@@ -86,6 +89,24 @@ class Keyword(models.Model):
 
     def __str__(self) -> str:
         return self.title
+
+    # True → False 롤백 방지 가드 (모든 경로에서 동작)
+    def save(self, *args, **kwargs):
+        if self.pk:
+            prev_is_collected = Keyword.objects.filter(pk=self.pk).values_list("is_collected", flat=True).first()
+            # 과거 True였던 값이 False로 내려가려는 시도를 차단
+            if prev_is_collected is True and self.is_collected is False:
+                logger.warning(
+                    "[BLOCK] Attempted rollback is_collected=True→False "
+                    f"(keyword_id={self.pk}, title={getattr(self, 'title', '')!r}, "
+                    f"collected_at={getattr(self, 'collected_at', None)}, ts={timezone.now()})"
+                )
+                # 조용히 되돌림: 운영 영향 최소화(저장은 진행되되 값은 True 유지)
+                self.is_collected = True
+                # (선택) 필요 시 collected_at 보정
+                # if not self.collected_at:
+                #     self.collected_at = timezone.now()
+        super().save(*args, **kwargs)
 
 
 class Article(models.Model):

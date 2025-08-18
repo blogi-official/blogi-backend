@@ -6,6 +6,11 @@ from typing import Dict, Final, Literal, Optional, TypedDict
 
 from app.common.logger import get_logger
 
+# ✅ 배치 종료 시 브라우저/드라이버까지 완전 정리 (선택이지만 권장)
+from app.features.internal.fetch_article.scraper.playwright_browser import (
+    recycle_browser,
+)
+
 # ✅ services의 "원문" 함수를 그대로 사용 (리턴 없음)
 from app.features.internal.fetch_article.services import scrape_and_send_articles
 
@@ -75,3 +80,9 @@ async def run_job(job_id: str) -> None:
         job.status = "failed"
         job.result = {"message": "scrape_and_send_articles failed", "ok": False}
         logger.exception(f"[JOB FAIL] {job_id}: {e}")
+    finally:
+        # ✅ 배치가 어떻게 끝나든 브라우저/드라이버 완전 종료 (유휴 시 프로세스 잔류 방지)
+        try:
+            await recycle_browser()
+        except Exception:
+            pass
