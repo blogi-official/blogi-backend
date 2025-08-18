@@ -56,7 +56,7 @@ urlpatterns = [
         GeneratedPostPublicDetailAPIView.as_view(),
         name="generated-post-result",
     ),
-    path("posts/<int:pk>/copy/", PostCopyAPIView.as_view(), name="post-copy"),
+    path("posts/<int:id>/copy/", PostCopyAPIView.as_view(), name="post-copy"),
     path(
         "posts/<int:id>/pdf/",
         PostPDFDownloadAPIView.as_view(),

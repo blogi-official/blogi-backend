@@ -107,9 +107,16 @@ class PostCopyAPIView(APIView):
     permission_classes = [IsUser]
     serializer_class = CopyLogSerializer
 
-    def post(self, request, id):
+    def post(self, request, *args, **kwargs):
+        # 라우트 파라미터 이름이 pk든 id든 모두 수용
+        post_id = kwargs.get("id") or kwargs.get("pk") or request.data.get("id") or request.query_params.get("id")
+        try:
+            post_id = int(post_id)
+        except (TypeError, ValueError):
+            return Response({"detail": "post id missing"}, status=400)
+
         user = request.user
-        post = get_object_or_404(GeneratedPost, id=id)
+        post = get_object_or_404(GeneratedPost, id=post_id)
 
         # 1회만 복사 로그 생성
         copy_log = CopyLog.objects.create(user=user, post=post)
@@ -117,6 +124,7 @@ class PostCopyAPIView(APIView):
         # copy_count 1 증가 (DB 레벨)
         GeneratedPost.objects.filter(id=post.id).update(copy_count=F("copy_count") + 1)
 
+        # 기존 응답 포맷 유지 (프론트 호환)
         serializer = self.serializer_class(copy_log)
         return Response({"message": "복사 기록이 저장되었습니다."}, status=200)
 
