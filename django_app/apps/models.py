@@ -1,7 +1,15 @@
+import logging
+import random
+
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+logger = logging.getLogger(__name__)
 
-class User(models.Model):
+
+class User(AbstractUser):
+    username = None  # type: ignore
+
     class Provider(models.TextChoices):
         GOOGLE = "google"
         NAVER = "naver"
@@ -11,7 +19,8 @@ class User(models.Model):
         USER = "user"
         ADMIN = "admin"
 
-    email = models.CharField(max_length=255, unique=True)
+    username = models.CharField(max_length=150, unique=True, null=True, blank=True)  # type: ignore
+    email = models.EmailField(unique=True)
     social_id = models.CharField(max_length=255)
     nickname = models.CharField(max_length=100)
     profile_image = models.CharField(max_length=500, null=True, blank=True)
@@ -20,11 +29,24 @@ class User(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    USERNAME_FIELD = "email"  # 이메일로 로그인하려면 필수
+    REQUIRED_FIELDS = ["username"]  # createsuperuser 시 최소 필드
+
     class Meta:
         db_table = "user"
+        verbose_name = "사용자"
+        verbose_name_plural = "사용자 목록"
 
     def __str__(self) -> str:
         return self.email
+
+    # username이 없을 때 자동 생성
+    def save(self, *args, **kwargs):
+        if not self.username:
+            base = self.email.split("@")[0]
+
+            self.username = f"{base}_{random.randint(1000, 9999)}"
+        super().save(*args, **kwargs)
 
 
 class UserInterest(models.Model):
@@ -43,13 +65,15 @@ class UserInterest(models.Model):
     class Meta:
         db_table = "user_interest"
         unique_together = ("user", "category")
+        verbose_name = "사용자 관심사"
+        verbose_name_plural = "사용자 관심사 목록"
 
     def __str__(self) -> str:
         return f"{self.user.nickname} - {self.category}"
 
 
 class Keyword(models.Model):
-    title = models.CharField(max_length=255, unique=True)
+    title = models.CharField(max_length=255)
     category = models.CharField(max_length=20)
     source_category = models.CharField(max_length=50)
     is_active = models.BooleanField(default=True)
@@ -59,19 +83,42 @@ class Keyword(models.Model):
 
     class Meta:
         db_table = "keyword"
+        verbose_name = "키워드"
+        verbose_name_plural = "키워드 목록"
+        unique_together = ("title", "category")
 
     def __str__(self) -> str:
         return self.title
 
+    # True → False 롤백 방지 가드 (모든 경로에서 동작)
+    def save(self, *args, **kwargs):
+        if self.pk:
+            prev_is_collected = Keyword.objects.filter(pk=self.pk).values_list("is_collected", flat=True).first()
+            # 과거 True였던 값이 False로 내려가려는 시도를 차단
+            if prev_is_collected is True and self.is_collected is False:
+                logger.warning(
+                    "[BLOCK] Attempted rollback is_collected=True→False "
+                    f"(keyword_id={self.pk}, title={getattr(self, 'title', '')!r}, "
+                    f"collected_at={getattr(self, 'collected_at', None)}, ts={timezone.now()})"
+                )
+                # 조용히 되돌림: 운영 영향 최소화(저장은 진행되되 값은 True 유지)
+                self.is_collected = True
+                # (선택) 필요 시 collected_at 보정
+                # if not self.collected_at:
+                #     self.collected_at = timezone.now()
+        super().save(*args, **kwargs)
+
 
 class Article(models.Model):
-    keyword = models.OneToOneField(Keyword, on_delete=models.CASCADE)
+    keyword = models.OneToOneField(Keyword, on_delete=models.CASCADE, related_name="article")
     title = models.CharField(max_length=255)
     content = models.TextField()
     origin_link = models.CharField(max_length=1000)
 
     class Meta:
         db_table = "article"
+        verbose_name = "기사"
+        verbose_name_plural = "기사 목록"
 
     def __str__(self) -> str:
         return self.title
@@ -79,7 +126,7 @@ class Article(models.Model):
 
 class GeneratedPost(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    keyword = models.OneToOneField(Keyword, on_delete=models.CASCADE)
+    keyword = models.ForeignKey(Keyword, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     content = models.TextField()
     image_1_url = models.CharField(max_length=1000, null=True, blank=True)
@@ -87,10 +134,14 @@ class GeneratedPost(models.Model):
     image_3_url = models.CharField(max_length=1000, null=True, blank=True)
     copy_count = models.IntegerField(default=0)
     is_active = models.BooleanField(default=True)
+    is_generated = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = "generated_post"
+        verbose_name = "생성된 글"
+        verbose_name_plural = "생성된 글 목록"
+        constraints = [models.UniqueConstraint(fields=["user", "keyword"], name="unique_post_per_user_keyword")]
 
     def __str__(self) -> str:
         return self.title
@@ -103,6 +154,8 @@ class CopyLog(models.Model):
 
     class Meta:
         db_table = "copy_log"
+        verbose_name = "복사 기록"
+        verbose_name_plural = "복사 기록 목록"
 
     def __str__(self) -> str:
         return f"{self.user.nickname} - post#{self.post.id}"
@@ -118,13 +171,16 @@ class AdminLog(models.Model):
 
     class Meta:
         db_table = "admin_log"
+        verbose_name = "관리자 로그"
+        verbose_name_plural = "관리자 로그 목록"
 
     def __str__(self) -> str:
         return f"{self.admin.nickname} - {self.action}"
 
 
 class Image(models.Model):
-    post = models.ForeignKey(GeneratedPost, on_delete=models.CASCADE)
+    keyword = models.ForeignKey(Keyword, on_delete=models.CASCADE)  # 이미지의 진짜 소유자
+    post = models.ForeignKey(GeneratedPost, on_delete=models.SET_NULL, null=True, blank=True)  # 선택적 연결
     image_url = models.CharField(max_length=1000)
     order = models.SmallIntegerField()
     description = models.CharField(max_length=255, null=True, blank=True)
@@ -132,9 +188,13 @@ class Image(models.Model):
 
     class Meta:
         db_table = "image"
+        verbose_name = "이미지"
+        verbose_name_plural = "이미지 목록"
 
     def __str__(self) -> str:
-        return f"Post#{self.post.id} - Image {self.order}"
+        if self.post:
+            return f"Post#{self.post.id} - Image {self.order}"
+        return f"(미연결) Image {self.order}"
 
 
 class KeywordClickLog(models.Model):
@@ -144,6 +204,8 @@ class KeywordClickLog(models.Model):
 
     class Meta:
         db_table = "keyword_click_log"
+        verbose_name = "키워드 클릭 기록"
+        verbose_name_plural = "키워드 클릭 기록 목록"
 
     def __str__(self) -> str:
         return f"{self.user.nickname} - {self.keyword.title}"
@@ -162,6 +224,8 @@ class ClovaStudioLog(models.Model):
 
     class Meta:
         db_table = "clova_studio_log"
+        verbose_name = "Clova 처리 기록"
+        verbose_name_plural = "Clova 처리 기록 목록"
 
     def __str__(self) -> str:
         return f"{self.keyword.title} - {self.status}"
