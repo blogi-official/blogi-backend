@@ -45,7 +45,7 @@ class ClovaPreviewAPIView(APIView):
     def get(self, request, id: int):
         get_object_or_404(Keyword, id=id)
 
-        generated_post = (GeneratedPost.objects.filter(keyword_id=id).order_by('-created_at').first())
+        generated_post = GeneratedPost.objects.filter(keyword_id=id).order_by("-created_at").first()
         if not generated_post:
             return Response(status=status.HTTP_204_NO_CONTENT)
 
