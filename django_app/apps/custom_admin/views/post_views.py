@@ -43,12 +43,10 @@ class ClovaPreviewAPIView(APIView):
     serializer_class = GeneratedPostPreviewSerializer
 
     def get(self, request, id: int):
-        # 키워드 존재 여부만 확인해서 404 방지
         get_object_or_404(Keyword, id=id)
 
-        try:
-            generated_post = GeneratedPost.objects.get(keyword_id=id)
-        except GeneratedPost.DoesNotExist:
+        generated_post = GeneratedPost.objects.filter(keyword_id=id).order_by("-created_at").first()
+        if not generated_post:
             return Response(status=status.HTTP_204_NO_CONTENT)
 
         serializer = self.serializer_class(generated_post)
