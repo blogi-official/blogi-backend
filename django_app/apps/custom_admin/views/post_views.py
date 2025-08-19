@@ -1,3 +1,6 @@
+import os
+
+import requests
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import status
@@ -11,12 +14,12 @@ from apps.custom_admin.serializers.post_serializers import (
     GeneratedPostPreviewSerializer,
 )
 from apps.models import CopyLog, GeneratedPost, Keyword
-
-# Todo FastAPI(Clova) 호출 함수 - 실제 구현 또는 외부 호출 래퍼 함수
-# 현재는 임시 모킹 함수 사용 중
-from apps.utils.clova_mock import request_clova_regenerate
 from apps.utils.paginations import CustomPageNumberPagination
 from apps.utils.permissions import IsAdmin
+
+# FastAPI 연결 정보 (환경변수)
+FASTAPI_BASE = os.getenv("FASTAPI_BASE", "http://127.0.0.1:8001")
+INTERNAL_SECRET = os.getenv("INTERNAL_SECRET") or os.getenv("INTERNAL_SECRET_KEY") or ""
 
 
 @extend_schema(
@@ -61,62 +64,79 @@ class ClovaPreviewAPIView(APIView):
 
 @extend_schema(
     tags=["[Admin] 키워드 관리"],
-    summary="Clova 재요약 or 새 글 요청",
+    summary="Clova 콘텐츠 재생성",
     description=(
-        "관리자가 Clova 요약 결과가 없거나 부적절한 경우, "
-        "AI에게 다시 글을 생성하도록 요청합니다.\n"
-        "- 기존 결과 덮어쓰기\n"
-        "- FastAPI Clova 호출 기반 처리\n"
-        "- 관리자 인증 필요"
+        "해당 키워드로 이미 생성된 게시글이 있을 경우, FastAPI를 통해 Clova 재생성을 수행합니다.\n"
+        "- 내부 시크릿 키 필요 (X-Internal-Secret)\n"
+        "- 성공 시 post_id와 상태 반환"
     ),
     responses={
         200: {
             "type": "object",
             "properties": {
-                "message": {"type": "string"},
-                "data": {
-                    "type": "object",
-                    "properties": {
-                        "post_id": {"type": "integer"},
-                        "status": {"type": "string"},
-                    },
-                },
+                "post_id": {"type": "integer"},
+                "status": {"type": "string"},
+                "created_at": {"type": "string", "format": "date-time"},
+                "error_message": {"type": "string", "nullable": True},
+                "from_cache": {"type": "boolean"},
             },
             "example": {
-                "message": "Clova 재생성 요청 완료",
-                "data": {"post_id": 112, "status": "success"},
+                "post_id": 112,
+                "status": "success",
+                "created_at": "2025-08-18T12:34:56.789Z",
+                "error_message": None,
+                "from_cache": False,
             },
         },
-        401: {"description": "관리자 인증 정보가 유효하지 않습니다."},
-        404: {"description": "해당 키워드 ID에 대한 기사 본문이 존재하지 않습니다."},
-        500: {"description": "서버 오류 발생"},
+        401: {"description": "관리자 인증 실패"},
+        404: {"description": "생성된 게시글 없음 (keyword에 매핑된 GeneratedPost 미존재)"},
+        500: {"description": "FastAPI 호출 오류 / 시크릿 미설정"},
     },
 )
-# Clova 재요약 / 새글 요청
 class ClovaRegenerateAPIView(APIView):
     permission_classes = [IsAdmin]
 
     def post(self, request, id: int):
-        # 키워드 존재 확인
+        # 1) 키워드 존재 확인
         keyword = get_object_or_404(Keyword, id=id)
 
-        try:
-            # Todo FastAPI(Clova Studio) 호출 - 실제 비동기 작업 또는 sync 래퍼 함수 사용 권장
-            # 현재는 임시 모킹 함수 사용 중
-            post_id, status_str = request_clova_regenerate(keyword.id)
-        except Exception:
+        if not INTERNAL_SECRET:
             return Response(
-                {"detail": "Clova 요약 요청 처리 중 서버 오류가 발생했습니다."},
+                {"detail": "INTERNAL_SECRET(_KEY) 환경변수가 설정되지 않았습니다."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
-        return Response(
-            {
-                "message": "Clova 재생성 요청 완료",
-                "data": {"post_id": post_id, "status": status_str},
-            },
-            status=status.HTTP_200_OK,
-        )
+        # 2) 해당 키워드로 이미 생성된 게시글 찾아 post_id / user_id 획득
+        try:
+            generated_post = GeneratedPost.objects.get(keyword_id=keyword.id)
+        except GeneratedPost.DoesNotExist:
+            return Response(
+                {"detail": "해당 키워드로 생성된 게시글이 없습니다."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        post_id = generated_post.id
+        user_id = generated_post.user_id  # 원 작성자 기준으로 로그 일관성 유지
+
+        # 3) FastAPI 재생성 호출
+        url = f"{FASTAPI_BASE}/api/v1/internal/posts/{post_id}/regenerate"
+        headers = {"X-Internal-Secret": INTERNAL_SECRET}
+        payload = {"user_id": int(user_id)}
+
+        try:
+            r = requests.post(url, json=payload, headers=headers, timeout=60)
+        except requests.RequestException as e:
+            return Response({"detail": f"FastAPI 호출 실패: {e}"}, status=status.HTTP_502_BAD_GATEWAY)
+
+        try:
+            data = r.json()
+        except ValueError:
+            return Response(
+                {"detail": "FastAPI에서 유효하지 않은 JSON을 반환했습니다."}, status=status.HTTP_502_BAD_GATEWAY
+            )
+
+        # 4) FastAPI 응답 그대로 반환
+        return Response(data, status=r.status_code if r.status_code >= 400 else status.HTTP_200_OK)
 
 
 # 사용자 생성 콘텐츠 목록조회 006
