@@ -1,21 +1,26 @@
+import os
 from typing import cast
 
 from django.contrib.auth import get_user_model
 from django.db.models import Case, Count, IntegerField, QuerySet, Value, When
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_schema
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from datetime import datetime, time, timedelta
 
-from apps.models import Keyword, KeywordClickLog
+from apps.models import Keyword, KeywordClickLog, GeneratedPost
 from apps.users.serializers.keyword_serializers import KeywordListSerializer
 from apps.utils.paginations import CustomPageNumberPagination
 from apps.utils.permissions import IsUser
 
 user_model = get_user_model()
+
+DAILY_LIMIT = int(os.getenv("DAILY_GENERATE_LIMIT", "3"))
 
 
 @extend_schema(
@@ -112,13 +117,37 @@ class KeywordListAPIView(APIView):
 # 키워드 클릭 기록
 class KeywordClickLogView(APIView):
     permission_classes = [IsUser]
+    throttle_classes = []  # ⬅️ 전역 Throttle이 있어도 이 뷰만 해제
 
     def post(self, request, id: int):
         user = request.user
-
         keyword = get_object_or_404(Keyword, pk=id)
 
-        KeywordClickLog.objects.create(user=user, keyword=keyword)
-        from rest_framework import status
+        # 1) 클릭은 항상 기록 (에러 나도 흐름은 막지 않음)
+        try:
+            KeywordClickLog.objects.create(user=user, keyword=keyword)
+        except Exception:
+            pass
 
-        return Response({"message": "클릭 로그가 기록되었습니다."}, status=status.HTTP_201_CREATED)
+        # 2) 오늘(KST) 구간
+        today = timezone.localdate()
+        start = timezone.make_aware(datetime.combine(today, time.min))
+        end = start + timedelta(days=1)
+
+        # 3) '성공한 생성 수' 기준으로 남은 횟수 계산
+        used_posts = GeneratedPost.objects.filter(
+            user=user, created_at__gte=start, created_at__lt=end
+        ).count()
+        remaining = max(0, DAILY_LIMIT - used_posts)
+
+        # 4) 안내 메타 반환 (절대 429 반환하지 않음)
+        from rest_framework import status as drf_status
+        return Response(
+            {
+                "message": "클릭 로그가 기록되었습니다.",
+                "limit": DAILY_LIMIT,
+                "today_count": used_posts,  # 성공 생성 수
+                "remaining": remaining,
+            },
+            status=drf_status.HTTP_201_CREATED,
+        )
