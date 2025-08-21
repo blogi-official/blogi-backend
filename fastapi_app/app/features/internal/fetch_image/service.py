@@ -24,7 +24,6 @@ async def fetch_and_save_images() -> list[str]:
                 )
             )
 
-            # 대상 없으면 종료
             if not keyword_data or "id" not in keyword_data or "title" not in keyword_data:
                 logger.info("더 이상 수집할 이미지 대상이 없습니다. 종료합니다.")
                 break
@@ -33,10 +32,22 @@ async def fetch_and_save_images() -> list[str]:
             title = keyword_data["title"]
             logger.info(f"[FETCH] keyword_id={keyword_id}, title='{title}'")
 
-            # 2. Kakao 이미지 수집 (최대 3개 확보까지 스마트 시도)
-            image_urls = await fetch_images_smart_with_threshold(title)
-            image_urls = image_urls[:3]
-            logger.info(f"[FETCH] keyword_id={keyword_id}, image_urls={image_urls}")
+            try:
+                # 2. Kakao 이미지 수집 (최대 3개 확보까지 스마트 시도)
+                image_urls = await fetch_images_smart_with_threshold(title)
+                image_urls = image_urls[:3]
+                logger.info(f"[FETCH] keyword_id={keyword_id}, image_urls={image_urls}")
+            except Exception as e:
+                # Kakao API 오류 → collected 처리 후 다음으로
+                logger.error(f"[ERROR] keyword_id={keyword_id} 이미지 수집 실패: {e}", exc_info=True)
+                await patch_json(
+                    join_url(
+                        settings.django_api_url,
+                        settings.django_api_endpoint_mark_collected.replace("{id}", str(keyword_id)),
+                    ),
+                    data={},
+                )
+                continue
 
             # 3. 이미지 없음 처리
             if not image_urls:
@@ -74,10 +85,28 @@ async def fetch_and_save_images() -> list[str]:
                 logger.info("[SKIP] 수집 대상 키워드 없음 (404)")
                 break
             logger.error(f"[ERROR] RuntimeError: {e}", exc_info=True)
+            # 런타임 에러도 collected 처리
+            if "keyword_id" in locals():
+                await patch_json(
+                    join_url(
+                        settings.django_api_url,
+                        settings.django_api_endpoint_mark_collected.replace("{id}", str(keyword_id)),
+                    ),
+                    data={},
+                )
             continue
 
         except Exception as e:
             logger.error(f"[FATAL] 이미지 수집 중 예외 발생: {e}", exc_info=True)
+            # 기타 예외도 collected 처리
+            if "keyword_id" in locals():
+                await patch_json(
+                    join_url(
+                        settings.django_api_url,
+                        settings.django_api_endpoint_mark_collected.replace("{id}", str(keyword_id)),
+                    ),
+                    data={},
+                )
             continue
 
     return results
