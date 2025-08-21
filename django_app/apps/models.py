@@ -54,6 +54,8 @@ class UserInterest(models.Model):
         ENTERTAINMENT = "연예"
         ECONOMY = "경제"
         SPORTS = "스포츠"
+        BASEBALL = "야구"  # ✅ 추가
+        DRAMA = "드라마"  # ✅ 추가
         FASHION = "패션"
         CAR = "자동차"
         TRAVEL = "여행"
