@@ -15,7 +15,7 @@ CATEGORY_MAP = {
 CATEGORY_META_MAP = {
     "연예": {"query": "엔터 종합", "type": "news"},
     # "야구": {"query": "야구", "type": "news"},
-    # "드라마": {"query": "드라마", "type": "blog"}, 
+    # "드라마": {"query": "드라마", "type": "blog"},
     # "경제": {"query": "경제 종합", "type": "news"},
     "스포츠": {"query": "스포츠 종합", "type": "news"},
     # "패션": {"query": "패션뷰티 종합", "type": "blog"},
