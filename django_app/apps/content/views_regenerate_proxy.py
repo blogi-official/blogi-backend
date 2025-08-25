@@ -22,7 +22,10 @@ class RegenerateProxyAPIView(APIView):
     def post(self, request, post_id: int):
         if not INTERNAL_SECRET:
             return Response(
-                {"status": "fail", "error_message": "INTERNAL_SECRET(_KEY) 환경변수가 비어 있습니다."},
+                {
+                    "status": "fail",
+                    "error_message": "INTERNAL_SECRET(_KEY) 환경변수가 비어 있습니다.",
+                },
                 status=500,
             )
 
@@ -41,6 +44,9 @@ class RegenerateProxyAPIView(APIView):
         try:
             data = r.json()
         except ValueError:
-            return Response({"status": "fail", "error_message": "invalid json from fastapi"}, status=502)
+            return Response(
+                {"status": "fail", "error_message": "invalid json from fastapi"},
+                status=502,
+            )
 
         return Response(data, status=r.status_code if r.status_code >= 400 else 200)

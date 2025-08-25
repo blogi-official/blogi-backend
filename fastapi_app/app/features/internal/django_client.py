@@ -54,7 +54,8 @@ async def fetch_article_with_images(keyword_id: int):
 # Clova 생성 결과 상세 조회
 async def fetch_post_details_from_django(post_id: int):
     endpoint_path = join_url(
-        settings.django_api_url, settings.django_api_endpoint_generated_get_patch.format(post_id=post_id)
+        settings.django_api_url,
+        settings.django_api_endpoint_generated_get_patch.format(post_id=post_id),
     )
     url = urljoin(settings.django_api_url, endpoint_path)
     return await get_raw_json(url)
@@ -69,7 +70,8 @@ async def send_generated_post_to_django(post_data: dict):
 # Clova 재생성 결과 수정 (PATCH)
 async def update_generated_post_in_django(post_id: int, update_data: dict):
     endpoint_path = join_url(
-        settings.django_api_url, settings.django_api_endpoint_generated_get_patch.format(post_id=post_id)
+        settings.django_api_url,
+        settings.django_api_endpoint_generated_get_patch.format(post_id=post_id),
     )
     url = urljoin(settings.django_api_url, endpoint_path)
     return await patch_json(url, update_data)

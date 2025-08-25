@@ -46,7 +46,16 @@ class InternalGeneratedPostDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = GeneratedPost
-        fields = ["id", "title", "content", "image_1_url", "image_2_url", "image_3_url", "keyword_id", "user_id"]
+        fields = [
+            "id",
+            "title",
+            "content",
+            "image_1_url",
+            "image_2_url",
+            "image_3_url",
+            "keyword_id",
+            "user_id",
+        ]
 
 
 class InternalGeneratedPostUpdateSerializer(serializers.ModelSerializer):
@@ -54,7 +63,14 @@ class InternalGeneratedPostUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = GeneratedPost
-        fields = ["title", "content", "image_1_url", "image_2_url", "image_3_url", "created_at"]
+        fields = [
+            "title",
+            "content",
+            "image_1_url",
+            "image_2_url",
+            "image_3_url",
+            "created_at",
+        ]
 
     def update(self, instance, validated_data):
         instance.is_generated = True

@@ -54,6 +54,9 @@ async def run_job(job_id: str) -> None:
     단건 루프형 수집 작업 실행.
     services.scrape_and_send_articles()는 반환값이 없으므로
     완료 시 result에는 간단한 요약만 기록합니다.
+
+    변경점:
+    - Django API가 404(대상 없음)를 반환하는 경우, 실패가 아닌 정상 종료(SKIP)로 처리합니다.
     """
     job = _JOBS.get(job_id)
     if not job:
@@ -75,11 +78,30 @@ async def run_job(job_id: str) -> None:
         job.status = "done"
         job.result = {"message": "scrape_and_send_articles completed", "ok": True}
         logger.info(f"[JOB DONE] {job_id}")
+
+    except RuntimeError as e:
+        # ✅ 404(대상 없음)는 실패가 아니라 정상 종료로 간주
+        if "status=404" in str(e):
+            job.status = "done"
+            job.error = None
+            job.result = {
+                "message": "no keywords (404) - skipped gracefully",
+                "ok": True,
+                "skipped": True,
+            }
+            logger.info(f"[JOB SKIP] {job_id}: 대상 없음(404)")
+        else:
+            job.error = str(e)
+            job.status = "failed"
+            job.result = {"message": "scrape_and_send_articles failed", "ok": False}
+            logger.exception(f"[JOB FAIL] {job_id}: {e}")
+
     except Exception as e:
         job.error = str(e)
         job.status = "failed"
         job.result = {"message": "scrape_and_send_articles failed", "ok": False}
         logger.exception(f"[JOB FAIL] {job_id}: {e}")
+
     finally:
         # ✅ 배치가 어떻게 끝나든 브라우저/드라이버 완전 종료 (유휴 시 프로세스 잔류 방지)
         try:

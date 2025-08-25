@@ -1,0 +1,13 @@
+INFO:     Will watch for changes in these directories: ['/home/rainsos/blogi-backend/fastapi_app']
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [41489] using WatchFiles
+INFO:     Started server process [41491]
+INFO:     Waiting for application startup.
+[2025-08-22 12:39:38][INFO][app.common.scheduler] [Scheduler] started
+[2025-08-22 12:39:38][INFO][app.common.scheduler] [Scheduler] initial safety wait: 180s
+INFO:     Application startup complete.
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+[2025-08-22 12:42:15][INFO][app.common.scheduler] [Scheduler] stopped
+INFO:     Application shutdown complete.
+INFO:     Finished server process [41491]
