@@ -124,13 +124,17 @@ class ClovaRegenerateAPIView(APIView):
         try:
             r = requests.post(url, json=payload, headers=headers, timeout=60)
         except requests.RequestException as e:
-            return Response({"detail": f"FastAPI 호출 실패: {e}"}, status=status.HTTP_502_BAD_GATEWAY)
+            return Response(
+                {"detail": f"FastAPI 호출 실패: {e}"},
+                status=status.HTTP_502_BAD_GATEWAY,
+            )
 
         try:
             data = r.json()
         except ValueError:
             return Response(
-                {"detail": "FastAPI에서 유효하지 않은 JSON을 반환했습니다."}, status=status.HTTP_502_BAD_GATEWAY
+                {"detail": "FastAPI에서 유효하지 않은 JSON을 반환했습니다."},
+                status=status.HTTP_502_BAD_GATEWAY,
             )
 
         # 4) FastAPI 응답 그대로 반환

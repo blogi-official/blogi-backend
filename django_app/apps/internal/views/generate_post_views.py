@@ -303,6 +303,9 @@ class InternalRegeneratedPostAPIView(APIView):
         updated_post = serializer.save()
 
         return Response(
-            {"post_id": updated_post.id, "created_at": updated_post.created_at.isoformat()},
+            {
+                "post_id": updated_post.id,
+                "created_at": updated_post.created_at.isoformat(),
+            },
             status=status.HTTP_200_OK,
         )

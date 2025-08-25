@@ -1,5 +1,4 @@
 # fastapi_app/app/features/internal/fetch_image/kakao_client.py
-
 import logging
 from typing import List, Union
 
@@ -8,6 +7,11 @@ import httpx
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
+
+
+# 추가: 쿼터 초과를 상위에서 구분 처리하기 위한 전용 예외
+class KakaoThrottled(RuntimeError):
+    pass
 
 
 async def fetch_kakao_images(query: str, count: int = 3) -> List[str]:
@@ -29,11 +33,24 @@ async def fetch_kakao_images(query: str, count: int = 3) -> List[str]:
 
     async with httpx.AsyncClient(timeout=10.0) as client:
         response = await client.get(endpoint, headers=headers, params=params)
-        logger.info(f"[KakaoAPI] query='{query}' status_code={response.status_code}")
+        status = response.status_code
 
-        if response.status_code != 200:
-            logger.error(f"[KakaoAPI] 오류 발생: {response.text}")
+        # 쿼터 초과(429) 또는 본문의 RequestThrottled 식별 → 전용 예외로 올림
+        if status != 200:
+            body_text = response.text
+            try:
+                body_json = response.json()
+            except Exception:
+                body_json = {}
+
+            if status == 429 or body_json.get("errorType") == "RequestThrottled":
+                logger.warning(f"[KakaoAPI] THROTTLED query='{query}' status={status} body={body_json or body_text}")
+                raise KakaoThrottled("Kakao API limit exceeded")
+
+            logger.error(f"[KakaoAPI] 오류 발생: {body_text}")
             raise RuntimeError("Kakao 이미지 API 호출 중 오류가 발생했습니다.")
+
+        logger.info(f"[KakaoAPI] query='{query}' status_code={status}")
 
         data = response.json()
         images = [item["image_url"] for item in data.get("documents", [])[:count]]

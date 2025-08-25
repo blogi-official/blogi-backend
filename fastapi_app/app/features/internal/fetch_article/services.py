@@ -34,7 +34,16 @@ async def scrape_and_send_articles():
     seen_urls: set[str] = set()
 
     while True:
-        raw_response = await fetch_keywords_from_django()
+        # ✅ 추가: 404(대상 없음)는 정상 종료로 처리
+        try:
+            raw_response = await fetch_keywords_from_django()
+        except RuntimeError as e:
+            if "status=404" in str(e):
+                logger.info("[SKIP] 스크랩 대상 키워드 없음(404) → 정상 종료")
+                break
+            # 다른 오류는 기존대로 전파
+            raise
+
         keyword = raw_response.get("data")
 
         logger.info(f"fetch_keywords_from_django 결과: {keyword}")

@@ -1,3 +1,4 @@
+from django.db.models import Exists, OuterRef  # 추가
 from django.utils.timezone import now
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
@@ -19,6 +20,7 @@ from apps.models import Article, Image, Keyword
         "FastAPI에서 이미지 수집을 위한 키워드 1건을 반환합니다.\n\n"
         "- `is_collected=False` 조건\n"
         "- `article`가 이미 수집되어 있는 키워드만 대상\n"
+        "- **이미지(Image)가 하나도 없는 키워드만 대상**\n"
         "- 정렬 기준: `created_at` 오름차순 (가장 오래된 것부터)\n"
         "- 대상이 없으면 404 반환"
     ),
@@ -32,7 +34,16 @@ class KeywordNextImageTargetAPIView(APIView):
         # article이 연결된 keyword_id만 필터링해서 쿼리
         article_keyword_ids = Article.objects.values_list("keyword_id", flat=True)
 
-        keyword = Keyword.objects.filter(is_collected=False, id__in=article_keyword_ids).order_by("created_at").first()
+        # 이미지가 이미 있는 키워드는 제외 (has_images=False만 대상)
+        has_images = Exists(Image.objects.filter(keyword_id=OuterRef("id")))
+
+        keyword = (
+            Keyword.objects.filter(is_collected=False, id__in=article_keyword_ids)
+            .annotate(has_images=has_images)
+            .filter(has_images=False)  # ← 핵심 필터
+            .order_by("created_at", "id")  # 안정적 정렬
+            .first()
+        )
 
         if not keyword:
             return Response(

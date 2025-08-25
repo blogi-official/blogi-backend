@@ -9,7 +9,9 @@ from typing import Any, Awaitable, Callable, Optional
 
 import app.features.internal.fetch_article.jobs as article_jobs  # 기사 수집 (jobs)
 from app.common.logger import get_logger
-from app.features.internal.fetch_image.service import fetch_and_save_images  # 이미지 수집
+from app.features.internal.fetch_image.service import (  # 이미지 수집
+    fetch_and_save_images,
+)
 
 # === 우리 프로젝트 실제 경로 ===
 from app.features.internal.scrape_titles.services import (

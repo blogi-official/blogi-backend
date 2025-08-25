@@ -63,7 +63,11 @@ urlpatterns = [
         name="post-pdf-download",
     ),
     # 콘텐츠 생성 상태 변경
-    path("posts/<int:post_id>/status/", UserGeneratedPostPatchAPIView.as_view(), name="post-status-update"),
+    path(
+        "posts/<int:post_id>/status/",
+        UserGeneratedPostPatchAPIView.as_view(),
+        name="post-status-update",
+    ),
     path(
         "user/posts/<int:id>/",
         GeneratedPostDeleteAPIView.as_view(),
